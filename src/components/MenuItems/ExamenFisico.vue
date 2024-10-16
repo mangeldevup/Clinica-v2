@@ -2,10 +2,10 @@
   <div class="container">
     <form enctype="multipart/form-data" method="post">
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-person-bounding-box"></i> Examen Físico
+              <i class="fas fa-user-md"></i> Examen Físico
             </span>
             <span class="opciones-formulario"></span>
           </p>
@@ -76,7 +76,7 @@
                   :key="campo.id"
                 >
                   <label :for="campo.id" class="form-label">
-                    <strong>{{ campo.label }}</strong>
+                    {{ campo.label }}
                   </label>
                   <textarea
                     class="form-control"
@@ -87,7 +87,7 @@
                 </div>
                 <div class="col-12 mb-3">
                   <label for="observaciones" class="form-label">
-                    <strong>Observaciones</strong>
+                    Observaciones
                   </label>
                   <textarea
                     class="form-control"
@@ -108,27 +108,27 @@
               tabindex="0"
             >
               <!-- DataTable -->
-              <div class="container my-4">
+              <div class="container">
                 <div class="row">
-                  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                  <div class="col-lg-12">
                     <div class="table-responsive">
-                      <!-- Agregar contenedor para el scroll -->
-                      <table ref="dataTable" class="table table-striped">
+                      <table
+                        ref="dataTable"
+                        class="table table-striped table-bordered"
+                        style="width: 100%"
+                      >
                         <thead>
                           <tr>
-                            <th class="centered">#</th>
-                            <th class="centered">Name</th>
-                            <th class="centered">Email</th>
-                            <th class="centered">City</th>
-                            <th class="centered">Company</th>
-                            <th class="centered">Status</th>
-                            <th class="centered">Options</th>
+                            <th>Fecha</th>
+                            <th>Tipo/Especificación</th>
+                            <th>Escala Dolor</th>
+                            <th>Motivo Consulta</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
                         <tbody></tbody>
                       </table>
                     </div>
-                    <!-- Cierre del contenedor -->
                   </div>
                 </div>
               </div>
@@ -149,7 +149,7 @@
                   v-for="(campo, index) in camposGlasgow"
                   :key="index"
                 >
-                  <h6>{{ campo.label }}</h6>
+                  <label class="mb-2">{{ campo.label }}</label>
                   <select
                     class="form-select"
                     v-model="glasgow[campo.id]"
@@ -165,10 +165,21 @@
                     </option>
                   </select>
                 </div>
+                <div class="col-12 mb-3">
+                  <label for="observaciones" class="form-label">
+                    Observaciones
+                  </label>
+                  <textarea
+                    class="form-control"
+                    id="observaciones"
+                    v-model="formData.observaciones"
+                    rows="3"
+                  ></textarea>
+                </div>
               </div>
               <div class="row mt-3">
                 <div class="col-12 text-end">
-                  <h5 class="d-inline-block me-2">Puntuación:</h5>
+                  <label class="d-inline-block me-2">Puntuación:</label>
                   <input
                     type="text"
                     class="form-control d-inline-block"
@@ -208,7 +219,6 @@ export default {
   data() {
     return {
       pestanaActiva: "registro",
-
       ExamenFisico,
       camposExamenFisico: [
         { id: "cabeza", label: "Cabeza" },
@@ -264,9 +274,24 @@ export default {
       );
 
       if (camposVacios.length > 0) {
-        alert(
-          "Por favor, complete todos los campos obligatorios del examen físico."
-        );
+        Swal.fire({
+          title: "Error",
+          text: "Por favor, complete todos los campos obligatorios del examen físico.",
+          icon: "error",
+          iconColor: "#d9534f",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
         return;
       }
 
@@ -275,7 +300,24 @@ export default {
         !this.glasgow.ocular ||
         !this.glasgow.motora
       ) {
-        alert("Por favor, complete todos los campos de la escala de Glasgow.");
+        Swal.fire({
+          title: "Error",
+          text: "Por favor, complete todos los campos de la escala de Glasgow.",
+          icon: "error",
+          iconColor: "#d9534f",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
         return;
       }
 
@@ -283,8 +325,46 @@ export default {
       const datosExamenFisico = { ...this.formData };
       const datosGlasgow = { ...this.glasgow };
 
-      console.log("Datos del Examen Físico:", datosExamenFisico);
-      console.log("Datos de la Escala de Glasgow:", datosGlasgow);
+      // Agregar los datos a la DataTable
+      const table = $(this.$refs.dataTable).DataTable();
+      table.row
+        .add([
+          new Date().toLocaleDateString(),
+          datosExamenFisico.cabeza,
+          datosGlasgow.puntuacion,
+          datosExamenFisico.observaciones,
+          '<button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>',
+        ])
+        .draw();
+
+      // Limpiar el formulario
+      this.camposExamenFisico.forEach((campo) => {
+        this.formData[campo.id] = "";
+      });
+      this.formData.observaciones = "";
+      this.glasgow.verbal = "";
+      this.glasgow.ocular = "";
+      this.glasgow.motora = "";
+      this.glasgow.puntuacion = 0;
+
+      Swal.fire({
+        title: "¡Guardado!",
+        text: "Los datos del examen físico han sido guardados correctamente.",
+        icon: "success",
+        iconColor: "#2a3f54",
+        confirmButtonText: "Entendido",
+        customClass: {
+          confirmButton: "btn btn-custom mb-2",
+        },
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
     },
   },
   setup() {
@@ -294,8 +374,8 @@ export default {
     const dataTableOptions = {
       lengthMenu: [5, 10, 15, 20, 100, 200, 500],
       columnDefs: [
-        { className: "centered", targets: [0, 1, 2, 3, 4, 5, 6] },
-        { orderable: false, targets: [5, 6] },
+        { className: "centered", targets: [0, 1, 2, 3, 4] },
+        { orderable: false, targets: [4] },
         { searchable: false, targets: [1] },
       ],
       pageLength: 3,
@@ -322,38 +402,63 @@ export default {
         $(dataTable.value).DataTable().destroy();
       }
 
-      await listUsers();
-
       $(dataTable.value).DataTable(dataTableOptions);
-    };
 
-    const listUsers = async () => {
-      try {
-        const response = await fetch(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-        const users = await response.json();
+      $(dataTable.value).on("click", ".custom-delete-btn", function (event) {
+        event.preventDefault(); // Prevenir el comportamiento predeterminado del botón
 
-        let content = "";
-        users.forEach((user, index) => {
-          content += `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-          <td>${user.address.city}</td>
-          <td>${user.company.name}</td>
-          <td><i class="fa-solid fa-check" style="color: green;"></i></td>
-          <td>
-            <button class="custom-btn custom-edit-btn"><i class="fa-solid fa-pencil"></i></button>
-            <button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>
-          </td>
-        </tr>`;
+        const table = $(dataTable.value).DataTable();
+        const row = table.row($(this).parents("tr"));
+
+        Swal.fire({
+          title: "¿Está seguro?",
+          text: "¿Desea eliminar esta fila? Esta acción no se puede deshacer.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          customClass: {
+            confirmButton: "btn btn-custom mb-2 mr-2",
+            cancelButton: "btn btn-custom mb-2",
+          },
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            row.remove().draw();
+            table.rows().every(function (rowIdx) {
+              $(this.node())
+                .find("td:first-child")
+                .html(rowIdx + 1);
+            });
+            Swal.fire({
+              title: "¡Eliminado!",
+              text: "La fila ha sido eliminada.",
+              icon: "success",
+              iconColor: "#2a3f54",
+              confirmButtonText: "Entendido",
+              background: "#ededed",
+              backdrop: `rgba(0, 0, 0, 0.5)`,
+              customClass: {
+                confirmButton: "btn btn-custom mb-2",
+              },
+              showClass: {
+                popup: "animate__animated animate__fadeInDown",
+              },
+              hideClass: {
+                popup: "animate__animated animate__fadeOutUp",
+              },
+            });
+          }
         });
-        $(dataTable.value).find("tbody").html(content);
-      } catch (ex) {
-        alert(ex);
-      }
+      });
     };
 
     onMounted(async () => {

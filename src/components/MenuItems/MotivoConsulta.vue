@@ -2,10 +2,10 @@
   <div class="container">
     <form>
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-clipboard-pulse"></i> Motivo de Consulta
+              <i class="fas fa-clipboard-list"></i> Motivo de Consulta
             </span>
             <span class="opciones-formulario"></span>
           </p>
@@ -55,7 +55,7 @@
                 <div class="col-lg-6 col-md-12">
                   <div class="mb-3">
                     <label for="motivo-consulta" class="form-label"
-                      ><strong>Motivo Consulta</strong></label
+                      >Motivo Consulta</label
                     >
                     <textarea
                       class="form-control scrollable-textarea"
@@ -69,7 +69,7 @@
                 <div class="col-lg-6 col-md-12">
                   <div class="mb-3">
                     <label for="dias-evolucion" class="form-label"
-                      ><strong>Días Evolución</strong></label
+                      >Días Evolución</label
                     >
                     <input
                       type="number"
@@ -84,7 +84,7 @@
                 <div class="col-lg-6 col-md-12">
                   <div class="mb-3">
                     <label for="enfermedad-actual" class="form-label"
-                      ><strong>Enfermedad Actual</strong></label
+                      >Enfermedad Actual</label
                     >
                     <textarea
                       class="form-control scrollable-textarea"
@@ -98,7 +98,7 @@
                 <div class="col-lg-6 col-md-12">
                   <div class="mb-3">
                     <label for="llegada-paciente" class="form-label"
-                      ><strong>Llegada de paciente</strong></label
+                      >Llegada de paciente</label
                     >
                     <select
                       class="form-select"
@@ -121,7 +121,7 @@
                 <div class="col-lg-6 col-md-12">
                   <div class="mb-3">
                     <label for="escala-dolor" class="form-label"
-                      ><strong>Escala de dolor</strong></label
+                      >Escala de dolor</label
                     >
                     <select
                       class="form-select"
@@ -144,7 +144,7 @@
                 <div class="col-lg-6 col-md-12">
                   <div class="mb-3">
                     <label for="es-gestante" class="form-label"
-                      ><strong>¿Es Gestante?</strong></label
+                      >¿Es Gestante?</label
                     >
                     <select
                       class="form-select"
@@ -188,7 +188,7 @@
                   <div class="col-lg-12">
                     <div class="table-responsive">
                       <table
-                        id="miTabla"
+                        ref="dataTable"
                         class="table table-striped table-bordered"
                         style="width: 100%"
                       >
@@ -218,22 +218,112 @@
 
 <script>
 import { mediosllegada, esdolor, gestante } from "../../bd/bd.js";
-
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 
 export default {
   setup() {
-    onMounted(() => {
-      $("#miTabla").DataTable({
-        paging: true, // Activar paginación
-        searching: true, // Activar búsqueda
-        ordering: true, // Activar ordenamiento por columnas
-        pageLength: 10, // Número de filas por página
+    const dataTable = ref(null);
+
+    const dataTableOptions = {
+      lengthMenu: [5, 10, 15, 20, 100, 200, 500],
+      columnDefs: [
+        { className: "centered", targets: [0, 1, 2, 3, 4] },
+        { orderable: false, targets: [4] },
+        { searchable: false, targets: [1] },
+      ],
+      pageLength: 3,
+      destroy: true,
+      language: {
+        lengthMenu: "Mostrar _MENU_ registros por página",
+        zeroRecords: "Ningún registro encontrado",
+        info: "Mostrando de _START_ a _END_ de un total de _TOTAL_ registros",
+        infoEmpty: "Ningún registro encontrado",
+        infoFiltered: "(filtrados desde _MAX_ registros totales)",
+        search: "Buscar:",
+        loadingRecords: "Cargando...",
+        paginate: {
+          first: "Primero",
+          last: "Último",
+          next: "Siguiente",
+          previous: "Anterior",
+        },
+      },
+    };
+
+    const initDataTable = async () => {
+      if ($.fn.DataTable.isDataTable(dataTable.value)) {
+        $(dataTable.value).DataTable().destroy();
+      }
+
+      $(dataTable.value).DataTable(dataTableOptions);
+
+      $(dataTable.value).on("click", ".custom-delete-btn", function (event) {
+        event.preventDefault(); // Prevenir el comportamiento predeterminado del botón
+
+        const table = $(dataTable.value).DataTable();
+        const row = table.row($(this).parents("tr"));
+
+        Swal.fire({
+          title: "¿Está seguro?",
+          text: "¿Desea eliminar esta fila? Esta acción no se puede deshacer.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          customClass: {
+            confirmButton: "btn btn-custom mb-2 mr-2",
+            cancelButton: "btn btn-custom mb-2",
+          },
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            row.remove().draw();
+            table.rows().every(function (rowIdx) {
+              $(this.node())
+                .find("td:first-child")
+                .html(rowIdx + 1);
+            });
+            Swal.fire({
+              title: "¡Eliminado!",
+              text: "La fila ha sido eliminada.",
+              icon: "success",
+              iconColor: "#2a3f54",
+              confirmButtonText: "Entendido",
+              background: "#ededed",
+              backdrop: `rgba(0, 0, 0, 0.5)`,
+              customClass: {
+                confirmButton: "btn btn-custom mb-2",
+              },
+              showClass: {
+                popup: "animate__animated animate__fadeInDown",
+              },
+              hideClass: {
+                popup: "animate__animated animate__fadeOutUp",
+              },
+            });
+          }
+        });
       });
+    };
+
+    onMounted(async () => {
+      await initDataTable();
     });
+
+    return {
+      dataTable,
+    };
   },
   data() {
     return {
@@ -261,7 +351,24 @@ export default {
         !this.formData.escalaDolor ||
         !this.formData.esGestante
       ) {
-        alert("Por favor, complete todos los campos antes de continuar.");
+        Swal.fire({
+          title: "¡Campos incompletos!",
+          text: "Por favor, complete todos los campos antes de continuar.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
         return;
       }
 
@@ -275,6 +382,47 @@ export default {
       };
 
       console.log("Datos capturados:", datosCapturados);
+
+      // Agregar los datos a la DataTable
+      const table = $(this.$refs.dataTable).DataTable();
+      const rowIndex = table.rows().count() + 1;
+
+      table.row
+        .add([
+          new Date().toLocaleDateString(), // Fecha actual
+          datosCapturados.llegadaPaciente,
+          datosCapturados.escalaDolor,
+          datosCapturados.motivoConsulta,
+          `<button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>`,
+        ])
+        .draw(false);
+
+      // Limpiar los campos del formulario
+      this.formData.motivoConsulta = "";
+      this.formData.diasEvolucion = "";
+      this.formData.enfermedadActual = "";
+      this.formData.llegadaPaciente = "";
+      this.formData.escalaDolor = "";
+      this.formData.esGestante = "";
+
+      Swal.fire({
+        title: "¡Datos guardados!",
+        text: "Los datos han sido guardados correctamente.",
+        icon: "success",
+        iconColor: "#2a3f54",
+        confirmButtonText: "Entendido",
+        customClass: {
+          confirmButton: "btn btn-custom mb-2",
+        },
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
     },
   },
 };

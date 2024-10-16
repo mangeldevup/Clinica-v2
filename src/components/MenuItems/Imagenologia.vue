@@ -2,10 +2,10 @@
   <div class="container">
     <form>
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-image"></i> Imagenología
+              <i class="fas fa-x-ray"></i> Imagenología
             </span>
             <span class="opciones-formulario"></span>
           </p>
@@ -70,13 +70,13 @@
                       <th>Nombre</th>
                       <th>Descripción</th>
                       <th>Cantidad</th>
-                      <th>Opc</th>
+                      <th>Opciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(imagen, index) in imagenes" :key="index">
-                      <td>{{ imagen.cups }}</td>
-                      <td>{{ imagen.nombre }}</td>
+                      <td>{{ imagen.codigo }}</td>
+                      <td>{{ imagen.descripcion }}</td>
                       <td class="text-wrap">{{ imagen.descripcion }}</td>
                       <td class="text-wrap">{{ imagen.cantidad }}</td>
                       <td>
@@ -111,7 +111,7 @@
                   <tbody>
                     <tr v-for="(imagen, index) in imagenes" :key="index">
                       <td>{{ imagen.fecha }}</td>
-                      <td>{{ imagen.nombre }}</td>
+                      <td>{{ imagen.descripcion }}</td>
                       <td>
                         <img
                           :src="getImageUrl(imagen.imagen)"
@@ -179,7 +179,7 @@ export default {
     };
 
     const abrirImagenModal = (imagen) => {
-      imagenModalTitulo.value = imagen.nombre;
+      imagenModalTitulo.value = imagen.descripcion;
       imagenModalSrc.value = getImageUrl(imagen.imagen);
       imagenModal.value.mostrar();
     };

@@ -5,15 +5,14 @@
     data-bs-backdrop="static"
     data-bs-keyboard="false"
     tabindex="-1"
-    :aria-labelledby="`${config.id}Label`"
     aria-labelledby="modalCIE10Label"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div id="headerm-general" class="modal-header">
-          <h1 class="modal-title fs-5 mt-2" :id="`${config.id}Label`">
-            {{ config.title }}
+          <h1 class="modal-title fs-5 mt-2" id="modalCIE10Label">
+            Buscar CIE-10
           </h1>
           <button
             type="button"
@@ -70,7 +69,7 @@ import { ref, onMounted } from "vue";
 import { Modal } from "bootstrap";
 
 export default {
-  name: "ModalCIE10",
+  name: "ModalCIE10Diag",
   emits: ["seleccionado"],
   setup(props, { emit }) {
     const busquedaLocal = ref("");

@@ -1,18 +1,18 @@
 <template>
   <div
     class="modal fade modal-small"
-    id="modalAgregarImagen"
+    id="modalCUMedic"
     data-bs-backdrop="static"
     data-bs-keyboard="false"
     tabindex="-1"
-    aria-labelledby="modalAgregarImagenLabel"
+    aria-labelledby="modalCUMedicLabel"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div id="headerm-general" class="modal-header">
-          <h1 class="modal-title fs-5 mt-2" id="modalAgregarImagenLabel">
-            Agregar Imagen Diagnóstica
+          <h1 class="modal-title fs-5 mt-2" id="modalCUMedicLabel">
+            Agregar Medicamento
           </h1>
           <button
             type="button"
@@ -22,15 +22,15 @@
             aria-label="Close"
           ></button>
         </div>
-        <div id="contenidom-generalIM" class="modal-body">
+        <div id="contenidom-generalMedic" class="modal-body">
           <form @submit.prevent="confirmarSeleccion">
             <div class="mb-3">
               <input
                 type="text"
                 class="form-control mt-2"
                 v-model="busquedaLocal"
-                @input="buscarImagenes"
-                placeholder="Buscar Imagen Diagnóstica"
+                @input="buscarMedicamentos"
+                placeholder="Buscar Medicamento"
               />
             </div>
             <div v-if="busquedaLocal" class="table-responsive mt-3">
@@ -43,7 +43,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in resultadosImagenes" :key="item.codigo">
+                  <tr v-for="item in resultadosMedicamentos" :key="item.codigo">
                     <td>{{ item.codigo }}</td>
                     <td>
                       <div class="description-cell">
@@ -54,7 +54,7 @@
                       <button
                         type="button"
                         class="custom-btn custom-edit-btn"
-                        @click="seleccionarImagen(item)"
+                        @click="seleccionarMedicamento(item)"
                       >
                         <i class="fa-solid fa-plus"></i>
                       </button>
@@ -64,20 +64,54 @@
               </table>
             </div>
             <div class="mt-3">
-              <label for="selectedImagen" class="form-label"
-                >Imagen Seleccionada</label
-              >
+              <label for="selectedMedicamento" class="form-label">Medicamento Seleccionado</label>
               <input
                 type="text"
-                id="selectedImagen"
+                id="selectedMedicamento"
                 class="form-control"
-                :value="
-                  selectedImagen
-                    ? selectedImagen.codigo + ' - ' + selectedImagen.descripcion
-                    : ''
-                "
-                placeholder="Imagen Seleccionada"
+                :value="selectedMedicamento ? selectedMedicamento.codigo + ' - ' + selectedMedicamento.descripcion : ''"
+                placeholder="Medicamento Seleccionado"
                 readonly
+                required
+              />
+            </div>
+            <div class="mt-3">
+              <label for="principioActivo" class="form-label">Principio Activo</label>
+              <input
+                type="text"
+                id="principioActivo"
+                class="form-control"
+                v-model="principioActivo"
+                required
+              />
+            </div>
+            <div class="mt-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input
+                type="text"
+                id="nombre"
+                class="form-control"
+                v-model="nombre"
+                required
+              />
+            </div>
+            <div class="mt-3">
+              <label for="presentacion" class="form-label">Presentación</label>
+              <input
+                type="text"
+                id="presentacion"
+                class="form-control"
+                v-model="presentacion"
+                required
+              />
+            </div>
+            <div class="mt-3">
+              <label for="posologia" class="form-label">Posología</label>
+              <input
+                type="text"
+                id="posologia"
+                class="form-control"
+                v-model="posologia"
                 required
               />
             </div>
@@ -106,33 +140,35 @@ import { ref, onMounted } from "vue";
 import { Modal } from "bootstrap";
 
 export default {
-  name: "ModalAgregarImagen",
-  emits: ["imagen-agregada"],
+  name: "MCUMedic",
+  emits: ["seleccionado"],
   setup(props, { emit }) {
     const busquedaLocal = ref("");
-    const resultadosImagenes = ref([]);
+    const resultadosMedicamentos = ref([]);
     const modalInstance = ref(null);
+    const principioActivo = ref("");
+    const nombre = ref("");
+    const presentacion = ref("");
+    const posologia = ref("");
     const cantidad = ref("");
-    const selectedImagen = ref(null);
+    const selectedMedicamento = ref(null);
 
     onMounted(() => {
-      modalInstance.value = new Modal(
-        document.getElementById("modalAgregarImagen")
-      );
+      modalInstance.value = new Modal(document.getElementById("modalCUMedic"));
     });
 
-    const buscarImagenes = () => {
+    const buscarMedicamentos = () => {
       if (busquedaLocal.value.trim() === "") {
-        resultadosImagenes.value = [];
+        resultadosMedicamentos.value = [];
         return;
       }
-      // Simulación de búsqueda con ejemplos de imágenes diagnósticas
-      resultadosImagenes.value = [
-        { codigo: "I01", descripcion: "Radiografía de tórax" },
-        { codigo: "I02", descripcion: "Tomografía computarizada" },
-        { codigo: "I03", descripcion: "Resonancia magnética" },
-        { codigo: "I04", descripcion: "Ecografía abdominal" },
-        { codigo: "I05", descripcion: "Mamografía" },
+      // Simulación de búsqueda con ejemplos de medicamentos
+      resultadosMedicamentos.value = [
+        { codigo: "A01", descripcion: "Paracetamol 500mg" },
+        { codigo: "A02", descripcion: "Ibuprofeno 400mg" },
+        { codigo: "B01", descripcion: "Amoxicilina 500mg" },
+        { codigo: "B02", descripcion: "Omeprazol 20mg" },
+        { codigo: "C01", descripcion: "Loratadina 10mg" },
       ].filter(
         (item) =>
           item.codigo.includes(busquedaLocal.value) ||
@@ -142,28 +178,42 @@ export default {
       );
     };
 
-    const seleccionarImagen = (item) => {
-      selectedImagen.value = item;
+    const seleccionarMedicamento = (item) => {
+      selectedMedicamento.value = item;
       busquedaLocal.value = ""; // Limpiar el campo de búsqueda
-      resultadosImagenes.value = []; // Limpiar los resultados de búsqueda
+      resultadosMedicamentos.value = []; // Limpiar los resultados de búsqueda
     };
 
     const confirmarSeleccion = () => {
-      if (!selectedImagen.value || !cantidad.value) {
+      if (
+        !selectedMedicamento.value ||
+        !principioActivo.value ||
+        !nombre.value ||
+        !presentacion.value ||
+        !posologia.value ||
+        !cantidad.value
+      ) {
         return;
       }
 
-      emit("imagen-agregada", {
-        ...selectedImagen.value,
+      emit("seleccionado", {
+        ...selectedMedicamento.value,
+        principioActivo: principioActivo.value,
+        nombre: nombre.value,
+        presentacion: presentacion.value,
+        posologia: posologia.value,
         cantidad: cantidad.value,
-        fecha: new Date().toISOString().split("T")[0], // Fecha actual
       });
       limpiarCampos();
       modalInstance.value.hide();
     };
 
     const limpiarCampos = () => {
-      selectedImagen.value = null;
+      selectedMedicamento.value = null;
+      principioActivo.value = "";
+      nombre.value = "";
+      presentacion.value = "";
+      posologia.value = "";
       cantidad.value = "";
     };
 
@@ -173,13 +223,17 @@ export default {
 
     return {
       busquedaLocal,
-      resultadosImagenes,
-      buscarImagenes,
-      seleccionarImagen,
+      resultadosMedicamentos,
+      buscarMedicamentos,
+      seleccionarMedicamento,
       confirmarSeleccion,
       abrirModal,
+      principioActivo,
+      nombre,
+      presentacion,
+      posologia,
       cantidad,
-      selectedImagen,
+      selectedMedicamento,
     };
   },
 };

@@ -2,10 +2,10 @@
   <div class="container">
     <form>
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-send"></i> Remisiones
+              <i class="fas fa-paper-plane"></i> Remisiones
             </span>
             <span class="opciones-formulario"></span>
           </p>
@@ -53,10 +53,8 @@
               <!-- Primera fila: Motivo de remisión y Diagnóstico -->
               <div class="row mt-3">
                 <div class="col-md-6 mb-3">
-                  <label for="motivo-remision" class="form-label"
-                    ><strong class="strong-form"
-                      >Motivo de la remisión</strong
-                    ></label
+                  <label for="motivo-remision" class="form-label">
+                    Motivo de la remisión</label
                   >
                   <textarea
                     class="form-control scrollable-textarea"
@@ -66,10 +64,8 @@
                   ></textarea>
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label for="diagnostico-consulta" class="form-label"
-                    ><strong class="strong-form"
-                      >Diagnóstico de la consulta</strong
-                    ></label
+                  <label for="diagnostico-consulta" class="form-label">
+                    Diagnóstico de la consulta</label
                   >
                   <textarea
                     class="form-control scrollable-textarea"
@@ -87,7 +83,7 @@
                   <!-- Grupo de clasificación y especificación del servicio -->
                   <div class="mb-2">
                     <label for="clasificacion-servicio" class="form-label">
-                      <strong>Clasificación Servicio</strong>
+                      Clasificación Servicio
                     </label>
                     <select
                       class="form-select mb-4"
@@ -107,7 +103,7 @@
 
                   <div>
                     <label for="especificacion-servicio" class="form-label">
-                      <strong>Especificación del servicio</strong>
+                      Especificación del servicio
                     </label>
                     <select
                       class="form-select"
@@ -128,7 +124,7 @@
 
                 <div class="col-md-6 mb-3">
                   <label for="analisis-consulta" class="form-label"
-                    ><strong>Análisis de la consulta</strong></label
+                    >Análisis de la consulta</label
                   >
                   <textarea
                     class="form-control scrollable-textarea2"
@@ -146,7 +142,7 @@
               <div class="row mt-3">
                 <div class="col-12 mb-3">
                   <label for="plan-manejo" class="form-label"
-                    ><strong>Plan de manejo</strong></label
+                    >Plan de manejo</label
                   >
                   <textarea
                     class="form-control scrollable-textarea"
@@ -162,7 +158,7 @@
               <div class="row mt-3">
                 <div class="col-12 mb-3">
                   <label for="observaciones-remision" class="form-label"
-                    ><strong>Observaciones de la remisión</strong></label
+                    >Observaciones de la remisión</label
                   >
                   <textarea
                     class="form-control scrollable-textarea"
@@ -192,27 +188,27 @@
               tabindex="0"
             >
               <!-- DataTable -->
-              <div class="container my-4">
+              <div class="container">
                 <div class="row">
-                  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                  <div class="col-lg-12">
                     <div class="table-responsive">
-                      <!-- Agregar contenedor para el scroll -->
-                      <table ref="dataTable" class="table table-striped">
+                      <table
+                        ref="dataTable"
+                        class="table table-striped table-bordered"
+                        style="width: 100%"
+                      >
                         <thead>
                           <tr>
-                            <th class="centered">#</th>
-                            <th class="centered">Name</th>
-                            <th class="centered">Email</th>
-                            <th class="centered">City</th>
-                            <th class="centered">Company</th>
-                            <th class="centered">Status</th>
-                            <th class="centered">Options</th>
+                            <th>Fecha</th>
+                            <th>Tipocita/Especificación</th>
+                            <th>Tipo/Remision</th>
+                            <th>Motivo/Remision</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
                         <tbody></tbody>
                       </table>
                     </div>
-                    <!-- Cierre del contenedor -->
                   </div>
                 </div>
               </div>
@@ -261,7 +257,24 @@ export default {
         !especificacionServicio.value ||
         !observacionesRemision.value.trim()
       ) {
-        alert("Por favor, complete todos los campos obligatorios.");
+        Swal.fire({
+          title: "Campos incompletos",
+          text: "Por favor, complete todos los campos obligatorios.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          confirmButtonText: "Entendido",
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
         return;
       }
 
@@ -276,23 +289,113 @@ export default {
       };
 
       console.log("Datos de la remisión:", datosRemision);
+      agregarRemisionHistorial(datosRemision);
+
+      // Limpiar campos
+      motivoRemision.value = "";
+      clasificacionServicio.value = "";
+      especificacionServicio.value = "";
+      observacionesRemision.value = "";
+
+      // Mostrar alerta de éxito
+      Swal.fire({
+        title: "Registrado",
+        text: "La remisión ha sido registrada correctamente.",
+        icon: "success",
+        iconColor: "#2a3f54",
+        confirmButtonText: "Entendido",
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        customClass: {
+          confirmButton: "btn btn-custom mb-2",
+        },
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
     };
 
-    // Data Table ignorar por ahora
+    const agregarRemisionHistorial = (remision) => {
+      const table = $(dataTable.value).DataTable();
+      const fechaActual = new Date().toLocaleDateString();
+      table.row
+        .add([
+          fechaActual,
+          remision.clasificacionServicio,
+          remision.especificacionServicio,
+          remision.motivoRemision,
+          `<button class="custom-btn custom-delete-btn" onclick="eliminarRemisionHistorial(this)">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>`,
+        ])
+        .draw(false);
+    };
+
+    window.eliminarRemisionHistorial = (button) => {
+      const table = $(dataTable.value).DataTable();
+      const row = $(button).closest("tr");
+      Swal.fire({
+        title: "¿Está seguro?",
+        text: "¿Desea eliminar esta fila? Esta acción no se puede deshacer.",
+        icon: "warning",
+        iconColor: "#2a3f54",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        customClass: {
+          confirmButton: "btn btn-custom mb-2 mr-2",
+          cancelButton: "btn btn-custom mb-2",
+        },
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          table.row(row).remove().draw();
+          Swal.fire({
+            title: "¡Eliminado!",
+            text: "La fila ha sido eliminada.",
+            icon: "success",
+            iconColor: "#2a3f54",
+            confirmButtonText: "Entendido",
+            background: "#ededed",
+            backdrop: `rgba(0, 0, 0, 0.5)`,
+            customClass: {
+              confirmButton: "btn btn-custom mb-2",
+            },
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+          });
+        }
+      });
+    };
+
     const dataTableOptions = {
       lengthMenu: [5, 10, 15, 20, 100, 200, 500],
       columnDefs: [
-        { className: "centered", targets: [0, 1, 2, 3, 4, 5, 6] },
-        { orderable: false, targets: [5, 6] },
+        { className: "centered", targets: [0, 1, 2, 3, 4] },
+        { orderable: false, targets: [4] },
         { searchable: false, targets: [1] },
       ],
       pageLength: 3,
       destroy: true,
       language: {
         lengthMenu: "Mostrar _MENU_ registros por página",
-        zeroRecords: "Ningún usuario encontrado",
+        zeroRecords: "Ninguna remisión encontrada",
         info: "Mostrando de _START_ a _END_ de un total de _TOTAL_ registros",
-        infoEmpty: "Ningún usuario encontrado",
+        infoEmpty: "Ninguna remisión encontrada",
         infoFiltered: "(filtrados desde _MAX_ registros totales)",
         search: "Buscar:",
         loadingRecords: "Cargando...",
@@ -310,38 +413,7 @@ export default {
         $(dataTable.value).DataTable().destroy();
       }
 
-      await listUsers();
-
       $(dataTable.value).DataTable(dataTableOptions);
-    };
-
-    const listUsers = async () => {
-      try {
-        const response = await fetch(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-        const users = await response.json();
-
-        let content = "";
-        users.forEach((user, index) => {
-          content += `
-                  <tr>
-                    <td>${index + 1}</td>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>${user.address.city}</td>
-                    <td>${user.company.name}</td>
-                    <td><i class="fa-solid fa-check" style="color: green;"></i></td>
-                    <td>
-                      <button class="custom-btn custom-edit-btn"><i class="fa-solid fa-pencil"></i></button>
-                      <button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
-                  </tr>`;
-        });
-        $(dataTable.value).find("tbody").html(content);
-      } catch (ex) {
-        alert(ex);
-      }
     };
 
     onMounted(async () => {

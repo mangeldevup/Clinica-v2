@@ -2,10 +2,10 @@
   <div class="container">
     <form>
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-clipboard-check"></i> Diagnóstico
+              <i class="fas fa-diagnoses"></i> Diagnóstico
             </span>
             <span class="opciones-formulario"></span>
           </p>
@@ -116,8 +116,9 @@
                 <div class="col-md-3">
                   <h6>Diagnóstico Principal</h6>
                   <button
+                    type="button"
                     class="btn btn-custom btn-icon mb-2"
-                    @click="buscarCIE10('principal')"
+                    @click="abrirModal('principal')"
                   >
                     BUSCAR CIE-10
                   </button>
@@ -140,8 +141,9 @@
                 <div class="col-md-3">
                   <h6>Relacionado Primario</h6>
                   <button
+                    type="button"
                     class="btn btn-custom btn-icon mb-2"
-                    @click="buscarCIE10('primario')"
+                    @click="abrirModal('primario')"
                   >
                     BUSCAR CIE-10
                   </button>
@@ -164,8 +166,9 @@
                 <div class="col-md-3">
                   <h6>Relacionado Secundario</h6>
                   <button
+                    type="button"
                     class="btn btn-custom btn-icon mb-2"
-                    @click="buscarCIE10('secundario')"
+                    @click="abrirModal('secundario')"
                   >
                     BUSCAR CIE-10
                   </button>
@@ -188,8 +191,9 @@
                 <div class="col-md-3">
                   <h6>Relacionado Terciario</h6>
                   <button
+                    type="button"
                     class="btn btn-custom btn-icon mb-2"
-                    @click="buscarCIE10('terciario')"
+                    @click="abrirModal('terciario')"
                   >
                     BUSCAR CIE-10
                   </button>
@@ -212,8 +216,9 @@
                 <div class="col-md-3">
                   <h6>Relacionado Cuartenario</h6>
                   <button
+                    type="button"
                     class="btn btn-custom btn-icon mb-2"
-                    @click="buscarCIE10('cuartenario')"
+                    @click="abrirModal('cuartenario')"
                   >
                     BUSCAR CIE-10
                   </button>
@@ -231,6 +236,19 @@
                   ></textarea>
                 </div>
               </div>
+
+              <hr class="mt-4">
+
+              <!-- Botón para capturar los datos -->
+              <div class="mt-3">
+                <button
+                  type="button"
+                  class="btn btn-custom btn-icon mb-2"
+                  @click="capturarDatos"
+                >
+                  Guardar
+                </button>
+              </div>
             </div>
 
             <!-- Tab de Historial -->
@@ -242,27 +260,28 @@
               tabindex="0"
             >
               <!-- DataTable -->
-              <div class="container my-4">
+              <div class="container">
                 <div class="row">
-                  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                  <div class="col-lg-12">
                     <div class="table-responsive">
-                      <!-- Agregar contenedor para el scroll -->
-                      <table ref="dataTable" class="table table-striped">
+                      <table
+                        ref="dataTable"
+                        class="table table-striped table-bordered"
+                        style="width: 100%"
+                      >
                         <thead>
                           <tr>
-                            <th class="centered">#</th>
-                            <th class="centered">Name</th>
-                            <th class="centered">Email</th>
-                            <th class="centered">City</th>
-                            <th class="centered">Company</th>
-                            <th class="centered">Status</th>
-                            <th class="centered">Options</th>
+                            <th>Fecha</th>
+                            <th>Clasificación</th>
+                            <th>Finalidad</th>
+                            <th>Causa Externa</th>
+                            <th>Diagnóstico</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
                         <tbody></tbody>
                       </table>
                     </div>
-                    <!-- Cierre del contenedor -->
                   </div>
                 </div>
               </div>
@@ -272,6 +291,9 @@
         </div>
       </div>
     </form>
+
+    <!-- Modal CIE-10 -->
+    <ModalCIE10Diag ref="modalCIE10Diag" @seleccionado="agregarCIE10" />
   </div>
 </template>
 
@@ -281,8 +303,12 @@ import { ref, onMounted } from "vue";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
+import ModalCIE10Diag from "../ModalDiag/MCIE10Diag.vue";
 
 export default {
+  components: {
+    ModalCIE10Diag,
+  },
   data() {
     return {
       Diagnostico,
@@ -296,11 +322,105 @@ export default {
         terciario: { codigo: "", descripcion: "" },
         cuartenario: { codigo: "", descripcion: "" },
       },
+      tipoActual: "",
+      historialDiagnosticos: [],
     };
   },
   methods: {
-    buscarCIE10(tipo) {
-      console.log(`Buscando CIE-10 para diagnóstico ${tipo}`);
+    abrirModal(tipo) {
+      this.tipoActual = tipo;
+      this.$refs.modalCIE10Diag.abrirModal();
+    },
+    agregarCIE10(item) {
+      this.diagnostico[this.tipoActual].codigo = item.codigo;
+      this.diagnostico[this.tipoActual].descripcion = item.descripcion;
+    },
+    capturarDatos() {
+      // Verificar si hay campos vacíos
+      if (
+        !this.diagnostico.clasificacion ||
+        !this.diagnostico.finalidad ||
+        !this.diagnostico.causaExterna ||
+        !this.diagnostico.principal.descripcion
+      ) {
+        Swal.fire({
+          title: "Error",
+          text: "Por favor, complete todos los campos obligatorios.",
+          icon: "error",
+          iconColor: "#d9534f",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
+        return;
+      }
+
+      // Capturar los datos
+      const nuevoDiagnostico = {
+        ...this.diagnostico,
+        fecha: new Date().toLocaleDateString(),
+      };
+      this.historialDiagnosticos.push(nuevoDiagnostico);
+      console.log(this.historialDiagnosticos);
+
+      // Agregar los datos a la DataTable
+      const table = $(this.$refs.dataTable).DataTable();
+      table.row
+        .add([
+          nuevoDiagnostico.fecha,
+          this.Diagnostico.clasificacionesDiagnostico.find(
+            (c) => c.id === nuevoDiagnostico.clasificacion
+          ).label,
+          this.Diagnostico.finalidadesConsulta.find(
+            (f) => f.id === nuevoDiagnostico.finalidad
+          ).label,
+          this.Diagnostico.causasExternas.find(
+            (c) => c.id === nuevoDiagnostico.causaExterna
+          ).label,
+          nuevoDiagnostico.principal.descripcion,
+          '<button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>',
+        ])
+        .draw();
+
+      // Limpiar el formulario
+      this.diagnostico = {
+        clasificacion: "",
+        finalidad: "",
+        causaExterna: "",
+        principal: { codigo: "", descripcion: "" },
+        primario: { codigo: "", descripcion: "" },
+        secundario: { codigo: "", descripcion: "" },
+        terciario: { codigo: "", descripcion: "" },
+        cuartenario: { codigo: "", descripcion: "" },
+      };
+
+      Swal.fire({
+        title: "¡Guardado!",
+        text: "Los datos del diagnóstico han sido guardados correctamente.",
+        icon: "success",
+        iconColor: "#2a3f54",
+        confirmButtonText: "Entendido",
+        customClass: {
+          confirmButton: "btn btn-custom mb-2",
+        },
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
     },
   },
   setup() {
@@ -310,8 +430,8 @@ export default {
     const dataTableOptions = {
       lengthMenu: [5, 10, 15, 20, 100, 200, 500],
       columnDefs: [
-        { className: "centered", targets: [0, 1, 2, 3, 4, 5, 6] },
-        { orderable: false, targets: [5, 6] },
+        { className: "centered", targets: [0, 1, 2, 3, 4, 5] },
+        { orderable: false, targets: [5] },
         { searchable: false, targets: [1] },
       ],
       pageLength: 3,
@@ -338,38 +458,63 @@ export default {
         $(dataTable.value).DataTable().destroy();
       }
 
-      await listUsers();
-
       $(dataTable.value).DataTable(dataTableOptions);
-    };
 
-    const listUsers = async () => {
-      try {
-        const response = await fetch(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-        const users = await response.json();
+      $(dataTable.value).on("click", ".custom-delete-btn", function (event) {
+        event.preventDefault(); // Prevenir el comportamiento predeterminado del botón
 
-        let content = "";
-        users.forEach((user, index) => {
-          content += `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-          <td>${user.address.city}</td>
-          <td>${user.company.name}</td>
-          <td><i class="fa-solid fa-check" style="color: green;"></i></td>
-          <td>
-            <button class="custom-btn custom-edit-btn"><i class="fa-solid fa-pencil"></i></button>
-            <button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>
-          </td>
-        </tr>`;
+        const table = $(dataTable.value).DataTable();
+        const row = table.row($(this).parents("tr"));
+
+        Swal.fire({
+          title: "¿Está seguro?",
+          text: "¿Desea eliminar esta fila? Esta acción no se puede deshacer.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          customClass: {
+            confirmButton: "btn btn-custom mb-2 mr-2",
+            cancelButton: "btn btn-custom mb-2",
+          },
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            row.remove().draw();
+            table.rows().every(function (rowIdx) {
+              $(this.node())
+                .find("td:first-child")
+                .html(rowIdx + 1);
+            });
+            Swal.fire({
+              title: "¡Eliminado!",
+              text: "La fila ha sido eliminada.",
+              icon: "success",
+              iconColor: "#2a3f54",
+              confirmButtonText: "Entendido",
+              background: "#ededed",
+              backdrop: `rgba(0, 0, 0, 0.5)`,
+              customClass: {
+                confirmButton: "btn btn-custom mb-2",
+              },
+              showClass: {
+                popup: "animate__animated animate__fadeInDown",
+              },
+              hideClass: {
+                popup: "animate__animated animate__fadeOutUp",
+              },
+            });
+          }
         });
-        $(dataTable.value).find("tbody").html(content);
-      } catch (ex) {
-        alert(ex);
-      }
+      });
     };
 
     onMounted(async () => {

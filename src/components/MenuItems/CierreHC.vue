@@ -1,27 +1,31 @@
 <template>
   <div class="cierre-hc-container">
     <div class="alerta-wrapper">
-      <div class="icono-atencion">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <div class="contenido-mensaje">
-        <h3>¡Atención!</h3>
-        <hr />
-        <p>
-          Está a punto de cerrar la historia clínica de la consulta realizada
-          previamente. Este proceso almacenará la información tal como se
-          encuentra actualmente y no podrá editarse nuevamente. Si está seguro
-          de cerrar el documento, continúe. De lo contrario, verifique la
-          información consignada.
-        </p>
-        <p>
-          Se solicitará el ping para verificar su identidad y firmar el
-          documento.
-        </p>
+      <div class="alerta-content">
+        <div class="icono-atencion">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="contenido-mensaje">
+          <h3>¡Atención!</h3>
+          <p>
+            Está a punto de cerrar la historia clínica de la consulta realizada
+            previamente. Este proceso almacenará la información tal como se
+            encuentra actualmente y no podrá editarse nuevamente.
+          </p>
+          <p>
+            Si está seguro de cerrar el documento, continúe. De lo contrario,
+            verifique la información consignada.
+          </p>
+          <p class="ping-info">
+            <i class="fa-solid fa-info-circle"></i>
+            Se solicitará el ping para verificar su identidad y firmar el
+            documento.
+          </p>
+        </div>
       </div>
       <div class="boton-wrapper">
         <button @click="confirmarCierre" class="btn-firmar">
-          <i class="fa-solid fa-check"></i> Firmar HC y Guardar
+          <i class="fa-solid fa-signature"></i> Firmar HC y Guardar
         </button>
       </div>
     </div>
@@ -33,15 +37,51 @@ export default {
   name: "CierreHC",
   methods: {
     confirmarCierre() {
-      if (
-        confirm(
-          "¿Está seguro que desea firmar y cerrar la historia clínica? Esta acción no se puede deshacer."
-        )
-      ) {
-        localStorage.removeItem("selectedMenuItems");
-        alert("La historia clínica ha sido cerrada exitosamente.");
-        window.location.reload();
-      }
+      Swal.fire({
+        title: "¿Está seguro?",
+        text: "¿Está seguro que desea firmar y cerrar la historia clínica? Esta acción no se puede deshacer.",
+        icon: "warning",
+        iconColor: "#2a3f54",
+        showCancelButton: true,
+        confirmButtonText: "Sí, cerrar",
+        cancelButtonText: "Cancelar",
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        customClass: {
+          confirmButton: "btn btn-custom mb-2 mr-2",
+          cancelButton: "btn btn-custom mb-2",
+        },
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          localStorage.removeItem("selectedMenuItems");
+          Swal.fire({
+            title: "Cerrado",
+            text: "La historia clínica ha sido cerrada exitosamente.",
+            icon: "success",
+            iconColor: "#2a3f54",
+            confirmButtonText: "Entendido",
+            background: "#ededed",
+            backdrop: `rgba(0, 0, 0, 0.5)`,
+            customClass: {
+              confirmButton: "btn btn-custom mb-2",
+            },
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+          }).then(() => {
+            window.location.reload();
+          });
+        }
+      });
     },
   },
 };
@@ -49,101 +89,104 @@ export default {
 
 <style scoped>
 .cierre-hc-container {
-  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 80vh;
+  padding: 20px;
 }
 
 .alerta-wrapper {
-  display: flex;
-  align-items: flex-start;
-  padding: 20px;
-  border: 1px solid #ddd;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
   width: 100%;
-  max-width: 1200px;
-  flex-wrap: wrap;
+  max-width: 800px;
+}
+
+.alerta-content {
+  display: flex;
+  padding: 30px;
 }
 
 .icono-atencion {
   flex: 0 0 auto;
-  margin-right: 20px;
-  color: #d9534f;
-  font-size: 98px;
-  margin-top: -20px;
+  margin-right: 30px;
+  color: #f8a54a;
+  font-size: 64px;
 }
 
 .contenido-mensaje {
-  flex: 1 1 auto;
-  margin-right: 20px;
-  margin-top: -25px;
+  flex: 1;
 }
 
 .contenido-mensaje h3 {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
-  color: #d9534f;
-  margin-bottom: 10px;
+  color: #f8a54a;
+  margin-bottom: 15px;
 }
 
 .contenido-mensaje p {
-  margin: 0;
+  margin: 0 0 15px;
   font-size: 16px;
-  line-height: 1.5;
-  color: #333;
+  line-height: 1.6;
+  color: #4a4a4a;
+}
+
+.ping-info {
+  background-color: #e9ecef;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.ping-info i {
+  margin-right: 8px;
 }
 
 .boton-wrapper {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
+  background-color: #f8f9fa;
+  padding: 20px;
+  text-align: center;
 }
 
 .btn-firmar {
-  background-color: #f8d7da;
-  color: #d9534f;
-  border: 1px solid #d9534f;
-  padding: 10px 20px;
+  background-color: #f8a54a;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
   font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-firmar i {
   margin-right: 8px;
 }
 
-.btn-firmar:hover {
-  background-color: #d9534f;
-  color: #fff;
+.btn-firmar:active {
+  transform: translateY(0);
 }
 
 @media (max-width: 768px) {
-  .alerta-wrapper {
+  .alerta-content {
     flex-direction: column;
     align-items: center;
-  }
-
-  .icono-atencion {
-    margin-bottom: 15px;
-    font-size: 40px;
-  }
-
-  .contenido-mensaje h3 {
     text-align: center;
   }
 
-  .contenido-mensaje p {
-    text-align: justify;
+  .icono-atencion {
+    margin-right: 0;
+    margin-bottom: 20px;
   }
 
-  .boton-wrapper {
-    margin-top: 15px;
+  .contenido-mensaje p {
+    text-align: left;
   }
 }
 </style>

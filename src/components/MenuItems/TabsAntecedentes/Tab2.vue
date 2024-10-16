@@ -8,22 +8,23 @@
   >
     <div class="row mt-3">
       <div class="col-md-3">
-        <!-- <button class="btn btn-custom btn-icon w-100" @click="adicionarNuevo">
-          <i class="bi bi-plus-lg"></i> Adicionar nuevo
-        </button> -->
         <div class="mt-3">
           <label for="cie10" class="form-label"
             >1. Seleccione antecente - CIE-10</label
           >
+          <button
+            class="btn btn-custom btn-icon mb-2 w-100"
+            @click="abrirModalCIE10F"
+          >
+            <i class="fa-solid fa-magnifying-glass"></i> Buscar
+          </button>
           <input
             type="text"
             class="form-control"
             id="cie10-2"
             v-model="cie10"
+            readonly
           />
-          <button class="btn btn-custom btn-icon mt-2 w-100" @click="buscar">
-            <i class="bi bi-search"></i> Buscar
-          </button>
         </div>
         <div class="mt-3">
           <label for="fecha" class="form-label">2. Fecha de antecedente</label>
@@ -51,7 +52,7 @@
           </select>
         </div>
         <button class="btn btn-custom btn-icon mt-2 w-100" @click="agregar">
-          <i class="bi bi-floppy"></i> Agregar
+          <i class="fa-solid fa-plus"></i> Agregar
         </button>
       </div>
       <div class="col-md-9">
@@ -61,56 +62,60 @@
           <div class="row">
             <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
               <div class="table-responsive">
-                <!-- Agregar contenedor para el scroll -->
                 <table ref="dataTable" class="table table-striped">
                   <thead>
                     <tr>
                       <th class="centered">#</th>
-                      <th class="centered">Name</th>
-                      <th class="centered">Email</th>
-                      <th class="centered">City</th>
-                      <th class="centered">Company</th>
-                      <th class="centered">Status</th>
-                      <th class="centered">Options</th>
+                      <th class="centered">Fecha</th>
+                      <th class="centered">CIE-10</th>
+                      <th class="centered">Familiar</th>
+                      <th class="centered">Acciones</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
               </div>
-              <!-- Cierre del contenedor -->
             </div>
           </div>
         </div>
         <!-- Data Table -->
       </div>
     </div>
+    <ModalCIE10F @seleccionado="onCIE10Seleccionado" ref="modalCIE10FRef" />
   </div>
 </template>
 
 <script>
-import { familiares } from "../../../bd/bd.js";
-
 import { ref, onMounted } from "vue";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 
+import ModalCIE10F from "../../ModalCIE10/MCIE10F.vue";
+import { familiares } from "../../../bd/bd.js";
+
 export default {
   name: "Tab2",
+  components: {
+    ModalCIE10F,
+  },
   props: {
     fecha: {
       type: String,
       required: true,
     },
   },
-  setup() {
+  setup(props) {
     const dataTable = ref(null);
+    const cie10 = ref("");
+    const familiar = ref("");
+    const modalCIE10FRef = ref(null);
 
     const dataTableOptions = {
       lengthMenu: [5, 10, 15, 20, 100, 200, 500],
       columnDefs: [
-        { className: "centered", targets: [0, 1, 2, 3, 4, 5, 6] },
-        { orderable: false, targets: [5, 6] },
+        { className: "centered", targets: [0, 1, 2, 3, 4] },
+        { orderable: false, targets: [4] },
         { searchable: false, targets: [1] },
       ],
       pageLength: 3,
@@ -137,38 +142,122 @@ export default {
         $(dataTable.value).DataTable().destroy();
       }
 
-      await listUsers();
-
       $(dataTable.value).DataTable(dataTableOptions);
+
+      $(dataTable.value).on("click", ".custom-delete-btn", function () {
+        const table = $(dataTable.value).DataTable();
+        const row = table.row($(this).parents("tr"));
+
+        Swal.fire({
+          title: "¿Está seguro?",
+          text: "¿Desea eliminar esta fila? Esta acción no se puede deshacer.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          customClass: {
+            confirmButton: "btn btn-custom mb-2 mr-2",
+            cancelButton: "btn btn-custom mb-2",
+          },
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            row.remove().draw();
+            table.rows().every(function (rowIdx) {
+              $(this.node())
+                .find("td:first-child")
+                .html(rowIdx + 1);
+            });
+            Swal.fire({
+              title: "¡Eliminado!",
+              text: "La fila ha sido eliminada.",
+              icon: "success",
+              iconColor: "#2a3f54",
+              confirmButtonText: "Entendido",
+              background: "#ededed",
+              backdrop: `rgba(0, 0, 0, 0.5)`,
+              customClass: {
+                confirmButton: "btn btn-custom mb-2",
+              },
+              showClass: {
+                popup: "animate__animated animate__fadeInDown",
+              },
+              hideClass: {
+                popup: "animate__animated animate__fadeOutUp",
+              },
+            });
+          }
+        });
+      });
     };
 
-    const listUsers = async () => {
-      try {
-        const response = await fetch(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-        const users = await response.json();
-
-        let content = "";
-        users.forEach((user, index) => {
-          content += `
-            <tr>
-              <td>${index + 1}</td>
-              <td>${user.name}</td>
-              <td>${user.email}</td>
-              <td>${user.address.city}</td>
-              <td>${user.company.name}</td>
-              <td><i class="fa-solid fa-check" style="color: green;"></i></td>
-              <td>
-                <button class="custom-btn custom-edit-btn"><i class="fa-solid fa-pencil"></i></button>
-                <button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>
-              </td>
-            </tr>`;
+    const agregar = () => {
+      if (!cie10.value || !props.fecha || !familiar.value) {
+        Swal.fire({
+          title: "¡Campos incompletos!",
+          text: "Por favor, complete todos los campos del formulario.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
         });
-        $(dataTable.value).find("tbody").html(content);
-      } catch (ex) {
-        alert(ex);
+        return;
       }
+
+      const table = $(dataTable.value).DataTable();
+      const rowIndex = table.rows().count() + 1;
+
+      const familiarLabel = familiares.find(
+        (f) => f.id === familiar.value
+      ).label;
+
+      table.row
+        .add([
+          rowIndex,
+          props.fecha,
+          cie10.value,
+          familiarLabel,
+          `<button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>`,
+        ])
+        .draw(false);
+
+      // Limpiar los campos del formulario
+      cie10.value = "";
+      familiar.value = "";
+    };
+
+    const abrirModalCIE10F = () => {
+      if (modalCIE10FRef.value) {
+        modalCIE10FRef.value.abrirModal();
+      } else {
+        console.error("No se pudo encontrar la referencia del modal");
+      }
+    };
+
+    const onCIE10Seleccionado = (item) => {
+      cie10.value = `${item.codigo} - ${item.descripcion}`;
+    };
+
+    const updateFecha = (event) => {
+      props.fecha = event.target.value;
     };
 
     onMounted(async () => {
@@ -177,6 +266,13 @@ export default {
 
     return {
       dataTable,
+      cie10,
+      familiar,
+      abrirModalCIE10F,
+      modalCIE10FRef,
+      onCIE10Seleccionado,
+      agregar,
+      updateFecha,
       familiares,
     };
   },

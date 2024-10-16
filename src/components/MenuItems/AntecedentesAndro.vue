@@ -1,96 +1,123 @@
 <template>
   <div class="container">
-    <form @submit.prevent="updateData">
-      <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
-          <p class="text-primary m-0 fw-bold d-flex justify-content-between">
-            <span class="titulo-formulario">
-              <i class="bi bi-gender-male"></i> Antecedentes Andrológicos
-            </span>
-          </p>
-        </div>
-        <div class="card-body">
-          <div class="antecedentes-andro">
-            <!-- Sección de visualización de datos actuales -->
-            <div class="current-data">
-              <h3>Registro Actual</h3>
-              <hr />
-              <div class="data-grid">
-                <div
-                  v-for="(value, key) in currentData"
-                  :key="key"
-                  class="data-item"
-                >
-                  <span class="data-label">{{ labels[key] }}:</span>
-                  <span class="data-value" :class="getValueClass(key, value)">{{
-                    value
-                  }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Formulario para actualizar datos -->
-            <div class="update-form mt-4">
-              <h3>Actualizar Datos</h3>
-              <hr />
-              <div class="form-grid">
-                <div
-                  v-for="(value, key) in formData"
-                  :key="key"
-                  class="form-group"
-                >
-                  <label :for="key">{{ labels[key] }}</label>
-                  <input
-                    v-if="!isSelect(key)"
-                    :type="getInputType(key)"
-                    :id="key"
-                    v-model="formData[key]"
-                    @blur="validateField(key)"
-                  />
-                  <select
-                    v-else
-                    :id="key"
-                    v-model="formData[key]"
-                    @blur="validateField(key)"
-                  >
-                    <option
-                      v-for="option in selectOptions[key]"
-                      :key="option.value"
-                      :value="option.value"
-                    >
-                      {{ option.label }}
-                    </option>
-                  </select>
-                  <small v-if="errors[key]" class="text-danger">{{
-                    errors[key]
-                  }}</small>
-                </div>
-              </div>
+    <div id="card-formulario" class="card mb-5">
+      <div id="card-header-formulario" class="card-header py-1">
+        <p class="text-primary m-0 fw-bold d-flex justify-content-between">
+          <span class="titulo-formulario">
+            <i class="fas fa-male"></i> Antecedentes Andrológicos
+          </span>
+        </p>
+      </div>
+      <div class="card-body">
+        <div class="antecedentes-andro">
+          <!-- Tabs -->
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
               <button
-                type="submit"
-                class="btn btn-custom btn-icon mt-4"
-                :disabled="!isFormValid"
+                class="nav-link active"
+                id="actual-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#actual"
+                type="button"
+                role="tab"
+                aria-controls="actual"
+                aria-selected="true"
               >
-                Actualizar datos
+                Actual
               </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="historial-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#historial"
+                type="button"
+                role="tab"
+                aria-controls="historial"
+                aria-selected="false"
+              >
+                Historial
+              </button>
+            </li>
+          </ul>
+
+          <!-- Tab content -->
+          <div class="tab-content mt-3">
+            <!-- Pestaña Actual -->
+            <div
+              class="tab-pane fade show active"
+              id="actual"
+              role="tabpanel"
+              aria-labelledby="actual-tab"
+            >
+              <form @submit.prevent="updateData">
+                <div class="form-grid">
+                  <div
+                    v-for="(value, key) in formData"
+                    :key="key"
+                    class="form-group"
+                  >
+                    <label :for="key">{{ labels[key] }}</label>
+                    <div class="input-group">
+                      <input
+                        v-if="!isSelect(key)"
+                        :type="getInputType(key)"
+                        :id="key"
+                        v-model="formData[key]"
+                        @change="updateField(key)"
+                        @blur="validateField(key)"
+                        :class="[{ 'is-invalid': errors[key] }, 'form-control']"
+                      />
+                      <select
+                        v-else
+                        :id="key"
+                        v-model="formData[key]"
+                        @change="updateField(key)"
+                        @blur="validateField(key)"
+                        :class="[{ 'is-invalid': errors[key] }, 'form-select']"
+                      >
+                        <option
+                          v-for="option in selectOptions[key]"
+                          :key="option.value"
+                          :value="option.value"
+                        >
+                          {{ option.label }}
+                        </option>
+                      </select>
+                    </div>
+                    <small v-if="errors[key]" class="text-danger">{{
+                      errors[key]
+                    }}</small>
+                    <small class="text-muted"
+                      >Última actualización: {{ getLastUpdate(key) }}</small
+                    >
+                  </div>
+                </div>
+              </form>
             </div>
 
-            <!-- Historial de cambios -->
-            <div class="change-history mt-4">
-              <h3>Historial de Cambios</h3>
-              <hr />
-              <ul v-if="changeHistory.length">
-                <li v-for="(change, index) in changeHistory" :key="index">
-                  {{ change.date }} - {{ labels[change.field] }}:
-                  {{ change.oldValue }} → {{ change.newValue }}
-                </li>
-              </ul>
-              <p v-else>No hay cambios registrados.</p>
+            <!-- Pestaña Historial -->
+            <div
+              class="tab-pane fade"
+              id="historial"
+              role="tabpanel"
+              aria-labelledby="historial-tab"
+            >
+              <div class="change-history">
+                <ul v-if="changeHistory.length">
+                  <li v-for="(change, index) in changeHistory" :key="index">
+                    {{ change.date }} - {{ labels[change.field] }}:
+                    {{ change.oldValue }} → {{ change.newValue }}
+                  </li>
+                </ul>
+                <p v-else>No hay cambios registrados.</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 </template>
 
@@ -101,7 +128,7 @@ import { antecedentesAndroData, labels, selectOptions } from "../../bd/bd.js";
 export default {
   name: "AntecedentesAndro",
   setup() {
-    const currentData = ref(antecedentesAndroData);
+    const currentData = ref({ ...antecedentesAndroData });
     const formData = reactive({ ...antecedentesAndroData });
     const errors = reactive({});
     const changeHistory = ref([]);
@@ -110,30 +137,53 @@ export default {
       Object.values(errors).every((error) => !error)
     );
 
-    const updateData = () => {
-      if (isFormValid.value) {
-        const changedFields = getChangedFields();
-        if (Object.keys(changedFields).length > 0) {
-          Object.keys(changedFields).forEach((key) => {
-            changeHistory.value.unshift({
-              date: new Date().toLocaleString(),
-              field: key,
-              oldValue: currentData.value[key],
-              newValue: formData[key],
-            });
-            currentData.value[key] = formData[key];
-          });
-
-          Swal.fire("Éxito", "Datos actualizados correctamente", "success");
-        } else {
-          Swal.fire("Información", "No se detectaron cambios", "info");
-        }
-      } else {
-        Swal.fire(
-          "Error",
-          "Por favor, corrija los errores antes de guardar",
-          "error"
-        );
+    const updateField = (key) => {
+      validateField(key);
+      if (!errors[key] && formData[key] !== currentData.value[key]) {
+        changeHistory.value.unshift({
+          date: new Date().toLocaleString(),
+          field: key,
+          oldValue: currentData.value[key],
+          newValue: formData[key],
+        });
+        currentData.value[key] = formData[key];
+        Swal.fire({
+          title: "¡Actualizado!",
+          text: `Campo ${labels[key]} actualizado correctamente`,
+          icon: "success",
+          iconColor: "#2a3f54",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
+      } else if (errors[key]) {
+        Swal.fire({
+          title: "Error",
+          text: errors[key],
+          icon: "error",
+          iconColor: "#d9534f",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
       }
     };
 
@@ -146,33 +196,10 @@ export default {
           "numeroParejasexuales",
         ].includes(key)
       ) {
-        errors[key] = value < 0 ? "El valor no puede ser negativo" : "";
+        errors[key] = value < 0 ? "El valor no puede ser negativo " : "";
       } else {
         errors[key] = "";
       }
-    };
-
-    const getChangedFields = () => {
-      return Object.keys(formData).reduce((acc, key) => {
-        if (formData[key] !== currentData.value[key]) {
-          acc[key] = formData[key];
-        }
-        return acc;
-      }, {});
-    };
-
-    const getValueClass = (key, value) => {
-      if (
-        [
-          "circuncision",
-          "criptorquidea",
-          "policionesNocturnas",
-          "trastornosEreccion",
-        ].includes(key)
-      ) {
-        return value === "Sí" ? "value-yes" : "value-no";
-      }
-      return "";
     };
 
     const isSelect = (key) =>
@@ -198,39 +225,31 @@ export default {
       return "text";
     };
 
+    const getLastUpdate = (key) => {
+      const lastChange = changeHistory.value.find(
+        (change) => change.field === key
+      );
+      return lastChange ? lastChange.date : "No hay registro";
+    };
+
     return {
-      currentData,
       formData,
       labels,
       selectOptions,
       errors,
       changeHistory,
       isFormValid,
-      updateData,
+      updateField,
       validateField,
-      getValueClass,
       isSelect,
       getInputType,
+      getLastUpdate,
     };
   },
 };
 </script>
 
 <style scoped>
-.antecedentes-go {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.current-data,
-.update-form {
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
 .data-grid,
 .form-grid {
   display: grid;
@@ -242,37 +261,8 @@ export default {
 .form-group {
   background-color: #ffffff;
   padding: 10px;
-  border-radius: 4px;
+  border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.data-label,
-label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 5px;
-}
-
-input,
-select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-}
-
-.btn-update {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.btn-update:hover {
-  background-color: #0056b3;
 }
 
 .value-yes {
@@ -282,17 +272,6 @@ select {
 .value-no {
   color: red;
 }
-
-.alert {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  padding: 15px;
-  border-radius: 4px;
-  transition: opacity 0.5s ease-in-out;
-}
-
 .change-history {
   max-height: 200px;
   overflow-y: auto;

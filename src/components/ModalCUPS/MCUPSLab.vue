@@ -1,18 +1,18 @@
 <template>
   <div
     class="modal fade modal-small"
-    id="modalAgregarImagen"
+    id="modalCIE10"
     data-bs-backdrop="static"
     data-bs-keyboard="false"
     tabindex="-1"
-    aria-labelledby="modalAgregarImagenLabel"
+    aria-labelledby="modalCIE10Label"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div id="headerm-general" class="modal-header">
-          <h1 class="modal-title fs-5 mt-2" id="modalAgregarImagenLabel">
-            Agregar Imagen Diagnóstica
+          <h1 class="modal-title fs-5 mt-2" id="modalCIE10Label">
+            Agregar Examen de Laboratorio
           </h1>
           <button
             type="button"
@@ -22,15 +22,15 @@
             aria-label="Close"
           ></button>
         </div>
-        <div id="contenidom-generalIM" class="modal-body">
+        <div id="contenidom-generalLab" class="modal-body">
           <form @submit.prevent="confirmarSeleccion">
             <div class="mb-3">
               <input
                 type="text"
                 class="form-control mt-2"
                 v-model="busquedaLocal"
-                @input="buscarImagenes"
-                placeholder="Buscar Imagen Diagnóstica"
+                @input="buscarCUPS"
+                placeholder="Buscar CUPS"
               />
             </div>
             <div v-if="busquedaLocal" class="table-responsive mt-3">
@@ -43,7 +43,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in resultadosImagenes" :key="item.codigo">
+                  <tr v-for="item in resultadosCUPS" :key="item.codigo">
                     <td>{{ item.codigo }}</td>
                     <td>
                       <div class="description-cell">
@@ -52,9 +52,8 @@
                     </td>
                     <td>
                       <button
-                        type="button"
                         class="custom-btn custom-edit-btn"
-                        @click="seleccionarImagen(item)"
+                        @click="seleccionarCUPS(item)"
                       >
                         <i class="fa-solid fa-plus"></i>
                       </button>
@@ -64,32 +63,55 @@
               </table>
             </div>
             <div class="mt-3">
-              <label for="selectedImagen" class="form-label"
-                >Imagen Seleccionada</label
+              <label for="selectedCUPS" class="form-label"
+                >CUPS Seleccionado</label
               >
               <input
                 type="text"
-                id="selectedImagen"
+                id="selectedCUPS"
                 class="form-control"
                 :value="
-                  selectedImagen
-                    ? selectedImagen.codigo + ' - ' + selectedImagen.descripcion
+                  selectedCUPS
+                    ? selectedCUPS.codigo + ' - ' + selectedCUPS.descripcion
                     : ''
                 "
-                placeholder="Imagen Seleccionada"
-                readonly
+                placeholder="CUPS Seleccionado"
                 required
               />
             </div>
             <div class="mt-3">
-              <label for="cantidad" class="form-label">Cantidad</label>
+              <label for="alias" class="form-label">Alias</label>
               <input
-                type="number"
-                id="cantidad"
+                type="text"
+                id="alias"
                 class="form-control"
-                v-model="cantidad"
+                v-model="alias"
                 required
               />
+            </div>
+            <div class="mt-3">
+              <label for="requerimientos" class="form-label"
+                >Requerimientos</label
+              >
+              <input
+                type="text"
+                id="requerimientos"
+                class="form-control"
+                v-model="requerimientos"
+                required
+              />
+            </div>
+            <div class="mt-3">
+              <label for="observaciones" class="form-label"
+                >Observaciones</label
+              >
+              <textarea
+                type="text"
+                id="observaciones"
+                class="form-control"
+                v-model="observaciones"
+                required
+              ></textarea>
             </div>
             <div class="modal-footer d-flex justify-content-between mt-3">
               <button type="submit" class="btn btn-custom">Confirmar</button>
@@ -106,33 +128,50 @@ import { ref, onMounted } from "vue";
 import { Modal } from "bootstrap";
 
 export default {
-  name: "ModalAgregarImagen",
-  emits: ["imagen-agregada"],
+  name: "MCUPSLab",
+  emits: ["seleccionado"],
   setup(props, { emit }) {
     const busquedaLocal = ref("");
-    const resultadosImagenes = ref([]);
+    const resultadosCUPS = ref([]);
     const modalInstance = ref(null);
-    const cantidad = ref("");
-    const selectedImagen = ref(null);
+    const alias = ref("");
+    const requerimientos = ref("");
+    const observaciones = ref("");
+    const selectedCUPS = ref(null);
 
     onMounted(() => {
-      modalInstance.value = new Modal(
-        document.getElementById("modalAgregarImagen")
-      );
+      modalInstance.value = new Modal(document.getElementById("modalCIE10"));
     });
 
-    const buscarImagenes = () => {
+    const buscarCUPS = () => {
       if (busquedaLocal.value.trim() === "") {
-        resultadosImagenes.value = [];
+        resultadosCUPS.value = [];
         return;
       }
-      // Simulación de búsqueda con ejemplos de imágenes diagnósticas
-      resultadosImagenes.value = [
-        { codigo: "I01", descripcion: "Radiografía de tórax" },
-        { codigo: "I02", descripcion: "Tomografía computarizada" },
-        { codigo: "I03", descripcion: "Resonancia magnética" },
-        { codigo: "I04", descripcion: "Ecografía abdominal" },
-        { codigo: "I05", descripcion: "Mamografía" },
+      // Simulación de búsqueda con ejemplos de CUPS
+      resultadosCUPS.value = [
+        {
+          codigo: "890201",
+          descripcion: "Consulta de primera vez por medicina general",
+        },
+        {
+          codigo: "890301",
+          descripcion:
+            "Consulta de control o de seguimiento por medicina general",
+        },
+        {
+          codigo: "895001",
+          descripcion: "Electrocardiograma de ritmo o de superficie SOD",
+        },
+        {
+          codigo: "902213",
+          descripcion:
+            "Hemograma IV [Hemoglobina, Hematocrito, recuento de eritrocitos, índices eritrocitarios, Leucograma, recuento de plaquetas, índices plaquetarios y morfología electrónica e histograma] Método automático",
+        },
+        {
+          codigo: "903841",
+          descripcion: "Colesterol de alta densidad [HDL]",
+        },
       ].filter(
         (item) =>
           item.codigo.includes(busquedaLocal.value) ||
@@ -142,29 +181,37 @@ export default {
       );
     };
 
-    const seleccionarImagen = (item) => {
-      selectedImagen.value = item;
+    const seleccionarCUPS = (item) => {
+      selectedCUPS.value = item;
       busquedaLocal.value = ""; // Limpiar el campo de búsqueda
-      resultadosImagenes.value = []; // Limpiar los resultados de búsqueda
+      resultadosCUPS.value = []; // Limpiar los resultados de búsqueda
     };
 
     const confirmarSeleccion = () => {
-      if (!selectedImagen.value || !cantidad.value) {
+      if (
+        !selectedCUPS.value ||
+        !alias.value ||
+        !requerimientos.value ||
+        !observaciones.value
+      ) {
         return;
       }
 
-      emit("imagen-agregada", {
-        ...selectedImagen.value,
-        cantidad: cantidad.value,
-        fecha: new Date().toISOString().split("T")[0], // Fecha actual
+      emit("seleccionado", {
+        ...selectedCUPS.value,
+        alias: alias.value,
+        requerimientos: requerimientos.value,
+        observaciones: observaciones.value,
       });
       limpiarCampos();
       modalInstance.value.hide();
     };
 
     const limpiarCampos = () => {
-      selectedImagen.value = null;
-      cantidad.value = "";
+      selectedCUPS.value = null;
+      alias.value = "";
+      requerimientos.value = "";
+      observaciones.value = "";
     };
 
     const abrirModal = () => {
@@ -173,13 +220,15 @@ export default {
 
     return {
       busquedaLocal,
-      resultadosImagenes,
-      buscarImagenes,
-      seleccionarImagen,
+      resultadosCUPS,
+      buscarCUPS,
+      seleccionarCUPS,
       confirmarSeleccion,
       abrirModal,
-      cantidad,
-      selectedImagen,
+      alias,
+      requerimientos,
+      observaciones,
+      selectedCUPS,
     };
   },
 };

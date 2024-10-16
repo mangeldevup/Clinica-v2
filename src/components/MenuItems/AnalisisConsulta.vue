@@ -2,10 +2,10 @@
   <div class="container">
     <form enctype="multipart/form-data" method="post">
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-graph-up"></i> Análisis de la Consulta
+              <i class="fas fa-chart-line"></i> Análisis de la Consulta
             </span>
             <span class="opciones-formulario"></span>
           </p>
@@ -18,7 +18,7 @@
               :key="campo.id"
             >
               <label :for="campo.id" class="form-label">
-                <strong>{{ campo.label }}</strong>
+                {{ campo.label }}
               </label>
               <textarea
                 :id="campo.id"
@@ -29,8 +29,9 @@
               ></textarea>
             </div>
           </div>
+          <hr />
           <!-- Botón para capturar los datos -->
-          <div class="mt-3">
+          <div class="mt-4">
             <button
               type="button"
               class="btn btn-custom btn-icon mb-2"
@@ -75,7 +76,24 @@ export default {
       );
 
       if (camposVacios.length > 0) {
-        alert("Por favor, complete todos los campos.");
+        Swal.fire({
+          title: "Error",
+          text: "Por favor, complete todos los campos.",
+          icon: "error",
+          iconColor: "#d9534f",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
       } else {
         // Capturamos los datos si están todos completos
         const datosAnalisisConsulta = { ...this.formData };
@@ -83,6 +101,31 @@ export default {
           "Datos del Análisis de la Consulta:",
           datosAnalisisConsulta
         );
+
+        Swal.fire({
+          title: "¡Guardado!",
+          text: "Los datos del análisis de la consulta han sido guardados correctamente.",
+          icon: "success",
+          iconColor: "#2a3f54",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
+
+        // Limpiar el formulario
+        this.formData = {
+          descripcionAnalisis: "",
+          planManejo: "",
+        };
       }
     },
   },

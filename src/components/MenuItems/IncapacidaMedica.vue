@@ -1,61 +1,11 @@
 <template>
-  <!-- Modal para búsqueda de motivo -->
-  <div
-    class="modal fade"
-    id="modalBusquedaMotivo"
-    tabindex="-1"
-    aria-labelledby="modalBusquedaMotivoLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div id="headerm-general" class="modal-header">
-          <h5 class="modal-title" id="modalBusquedaMotivoLabel">
-            Buscar Motivo de Incapacidad
-          </h5>
-          <button
-            type="button"
-            id="closem-general"
-            class="close-modal bi bi-x ms-auto"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div id="contenidom-general" class="modal-body">
-          <input
-            type="text"
-            class="form-control mb-3"
-            placeholder="Buscar motivo..."
-          />
-          <ul class="list-group">
-            <li
-              class="list-group-item"
-              @click="
-                seleccionarMotivo({ codigo: 'M001', descripcion: 'Motivo 1' })
-              "
-            >
-              Motivo 1
-            </li>
-            <li
-              class="list-group-item"
-              @click="
-                seleccionarMotivo({ codigo: 'M002', descripcion: 'Motivo 2' })
-              "
-            >
-              Motivo 2
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
   <div class="container">
     <form>
       <div id="card-formulario" class="card mb-5">
         <div id="card-header-formulario" class="card-header py-3">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-calendar-x"></i> Incapacidad Médica
+              <i class="fas fa-calendar-times"></i> Incapacidad Médica
             </span>
             <span class="opciones-formulario"></span>
           </p>
@@ -104,7 +54,7 @@
                 <!-- Motivo de Incapacidad médica -->
                 <div class="col-md-6 mb-3">
                   <label for="motivo-incapacidad" class="form-label"
-                    ><strong>Motivo de Incapacidad médica</strong></label
+                    >Motivo de Incapacidad médica</label
                   >
                   <div class="input-group">
                     <input
@@ -117,7 +67,7 @@
                     <button
                       class="btn btn-custom btn-icon"
                       type="button"
-                      @click="buscarMotivo"
+                      @click="abrirModalMotivo"
                     >
                       Buscar
                     </button>
@@ -133,14 +83,13 @@
                 <!-- Diagnóstico de la consulta -->
                 <div class="col-md-6 mb-3">
                   <label for="diagnostico-consulta" class="form-label"
-                    ><strong>Diagnóstico de la consulta</strong></label
+                    >Diagnóstico de la consulta</label
                   >
                   <textarea
                     class="form-control"
                     id="diagnostico-consulta"
                     rows="6"
                     v-model="diagnosticoConsulta"
-                    readonly
                   ></textarea>
                 </div>
               </div>
@@ -150,19 +99,18 @@
                 <div class="col-md-6 mb-3">
                   <div class="mb-2">
                     <label for="dias-recomendados" class="form-label"
-                      ><strong>Días Recomendados:</strong></label
+                      >Días Recomendados:</label
                     >
                     <input
                       type="number"
                       class="form-control"
                       id="dias-recomendados"
                       v-model="diasRecomendados"
-                      readonly
                     />
                   </div>
                   <div>
                     <label for="dias-ordenados" class="form-label mt-5"
-                      ><strong>Días ordenados</strong></label
+                      >Días ordenados</label
                     >
                     <input
                       type="number"
@@ -176,20 +124,17 @@
                 <!-- Análisis de la consulta -->
                 <div class="col-md-6 mb-3">
                   <label for="analisis-consulta" class="form-label"
-                    ><strong>Análisis de la consulta</strong></label
+                    >Análisis de la consulta</label
                   >
                   <textarea
                     class="form-control"
                     id="analisis-consulta"
                     rows="3"
                     v-model="analisisConsulta"
-                    readonly
                   ></textarea>
                   <div class="mt-2">
-                    <label for="fecha-finalizacion" class="form-label"
-                      ><strong
-                        >Fecha Finalización de incapacidad médica</strong
-                      ></label
+                    <label for="fecha-finalizacion" class="form-label">
+                      Fecha Finalización de incapacidad médica</label
                     >
                     <input
                       type="date"
@@ -208,9 +153,7 @@
                 <!-- Observaciones de la incapacidad médica -->
                 <div class="col-12 mb-3">
                   <label for="observaciones-incapacidad" class="form-label"
-                    ><strong
-                      >Observaciones de la incapacidad médica</strong
-                    ></label
+                    >Observaciones de la incapacidad médica</label
                   >
                   <textarea
                     class="form-control"
@@ -241,27 +184,27 @@
               tabindex="0"
             >
               <!-- DataTable -->
-              <div class="container my-4">
+              <div class="container">
                 <div class="row">
-                  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                  <div class="col-lg-12">
                     <div class="table-responsive">
-                      <!-- Agregar contenedor para el scroll -->
-                      <table ref="dataTable" class="table table-striped">
+                      <table
+                        ref="dataTable"
+                        class="table table-striped table-bordered"
+                        style="width: 100%"
+                      >
                         <thead>
                           <tr>
-                            <th class="centered">#</th>
-                            <th class="centered">Name</th>
-                            <th class="centered">Email</th>
-                            <th class="centered">City</th>
-                            <th class="centered">Company</th>
-                            <th class="centered">Status</th>
-                            <th class="centered">Options</th>
+                            <th>Fecha</th>
+                            <th>Tipo/Especificación</th>
+                            <th>Dias</th>
+                            <th>Motivo</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
                         <tbody></tbody>
                       </table>
                     </div>
-                    <!-- Cierre del contenedor -->
                   </div>
                 </div>
               </div>
@@ -272,6 +215,7 @@
       </div>
     </form>
   </div>
+  <MICA ref="modalMotivo" @seleccionado="seleccionarMotivo" />
 </template>
 
 <script>
@@ -279,9 +223,13 @@ import { ref, computed, onMounted } from "vue";
 import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
-import { Modal } from "bootstrap";
+
+import MICA from "../ModalIncap/MICA.vue";
 
 export default {
+  components: {
+    MICA,
+  },
   setup() {
     const motivoIncapacidad = ref("");
     const descripcionMotivo = ref("");
@@ -292,7 +240,7 @@ export default {
     const fechaFinalizacion = ref("");
     const observacionesIncapacidad = ref("");
     const dataTable = ref(null);
-    const modalBusquedaMotivo = ref(null);
+    const modalMotivo = ref(null);
 
     const fechaActual = new Date().toISOString().split("T")[0];
 
@@ -305,19 +253,39 @@ export default {
       return "";
     });
 
-    const buscarMotivo = () => {
-      modalBusquedaMotivo.value.show();
+    const abrirModalMotivo = () => {
+      if (modalMotivo.value) {
+        modalMotivo.value.abrirModal();
+      } else {
+        console.error("modalMotivo is not defined");
+      }
     };
 
     const seleccionarMotivo = (motivo) => {
       motivoIncapacidad.value = motivo.codigo;
       descripcionMotivo.value = motivo.descripcion;
-      modalBusquedaMotivo.value.hide();
     };
 
     const generarIncapacidad = () => {
       if (!motivoIncapacidad.value || !diasOrdenados.value) {
-        alert("Por favor, complete todos los campos obligatorios.");
+        Swal.fire({
+          title: "Campos incompletos",
+          text: "Por favor, complete todos los campos obligatorios.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          confirmButtonText: "Entendido",
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
         return;
       }
 
@@ -334,24 +302,115 @@ export default {
       };
 
       console.log("Incapacidad generada:", incapacidad);
-      // Aquí puedes implementar la lógica para guardar la incapacidad en tu sistema
+      agregarIncapacidadHistorial(incapacidad);
+
+      // Limpiar campos
+      motivoIncapacidad.value = "";
+      descripcionMotivo.value = "";
+      diagnosticoConsulta.value = "";
+      diasRecomendados.value = 0;
+      diasOrdenados.value = 0;
+      analisisConsulta.value = "";
+      observacionesIncapacidad.value = "";
+
+      Swal.fire({
+        title: "Registrado",
+        text: "La incapacidad médica ha sido registrada correctamente.",
+        icon: "success",
+        iconColor: "#2a3f54",
+        confirmButtonText: "Entendido",
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        customClass: {
+          confirmButton: "btn btn-custom mb-2",
+        },
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
     };
 
-    // Data Table ignorar por ahora
+    const agregarIncapacidadHistorial = (incapacidad) => {
+      const table = $(dataTable.value).DataTable();
+      const fechaActual = new Date().toLocaleDateString();
+      table.row
+        .add([
+          fechaActual,
+          "Tipo/Especificación",
+          incapacidad.diasOrdenados,
+          incapacidad.motivoIncapacidad,
+          `<button class="custom-btn custom-delete-btn" onclick="eliminarIncapacidadHistorial(this)">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>`,
+        ])
+        .draw(false);
+    };
+
+    window.eliminarIncapacidadHistorial = (button) => {
+      const table = $(dataTable.value).DataTable();
+      const row = $(button).closest("tr");
+      Swal.fire({
+        title: "¿Está seguro?",
+        text: "¿Desea eliminar esta fila? Esta acción no se puede deshacer.",
+        icon: "warning",
+        iconColor: "#2a3f54",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        customClass: {
+          confirmButton: "btn btn-custom mb-2 mr-2",
+          cancelButton: "btn btn-custom mb-2",
+        },
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          table.row(row).remove().draw();
+          Swal.fire({
+            title: "¡Eliminado!",
+            text: "La fila ha sido eliminada.",
+            icon: "success",
+            iconColor: "#2a3f54",
+            confirmButtonText: "Entendido",
+            background: "#ededed",
+            backdrop: `rgba(0, 0, 0, 0.5)`,
+            customClass: {
+              confirmButton: "btn btn-custom mb-2",
+            },
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+          });
+        }
+      });
+    };
+
     const dataTableOptions = {
       lengthMenu: [5, 10, 15, 20, 100, 200, 500],
       columnDefs: [
-        { className: "centered", targets: [0, 1, 2, 3, 4, 5, 6] },
-        { orderable: false, targets: [5, 6] },
+        { className: "centered", targets: [0, 1, 2, 3, 4] },
+        { orderable: false, targets: [4] },
         { searchable: false, targets: [1] },
       ],
       pageLength: 3,
       destroy: true,
       language: {
         lengthMenu: "Mostrar _MENU_ registros por página",
-        zeroRecords: "Ningún usuario encontrado",
+        zeroRecords: "Ninguna incapacidad encontrada",
         info: "Mostrando de _START_ a _END_ de un total de _TOTAL_ registros",
-        infoEmpty: "Ningún usuario encontrado",
+        infoEmpty: "Ninguna incapacidad encontrada",
         infoFiltered: "(filtrados desde _MAX_ registros totales)",
         search: "Buscar:",
         loadingRecords: "Cargando...",
@@ -369,45 +428,11 @@ export default {
         $(dataTable.value).DataTable().destroy();
       }
 
-      await listUsers();
-
       $(dataTable.value).DataTable(dataTableOptions);
     };
 
-    const listUsers = async () => {
-      try {
-        const response = await fetch(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-        const users = await response.json();
-
-        let content = "";
-        users.forEach((user, index) => {
-          content += `
-                      <tr>
-                        <td>${index + 1}</td>
-                        <td>${user.name}</td>
-                        <td>${user.email}</td>
-                        <td>${user.address.city}</td>
-                        <td>${user.company.name}</td>
-                        <td><i class="fa-solid fa-check" style="color: green;"></i></td>
-                        <td>
-                          <button class="custom-btn custom-edit-btn"><i class="fa-solid fa-pencil"></i></button>
-                          <button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>
-                        </td>
-                      </tr>`;
-        });
-        $(dataTable.value).find("tbody").html(content);
-      } catch (ex) {
-        alert(ex);
-      }
-    };
-
-    onMounted(() => {
-      modalBusquedaMotivo.value = new Modal(
-        document.getElementById("modalBusquedaMotivo")
-      );
-      initDataTable();
+    onMounted(async () => {
+      await initDataTable();
     });
 
     return {
@@ -420,9 +445,10 @@ export default {
       fechaFinalizacion: calcularFechaFinalizacion,
       observacionesIncapacidad,
       dataTable,
-      buscarMotivo,
+      abrirModalMotivo,
       seleccionarMotivo,
       generarIncapacidad,
+      modalMotivo,
     };
   },
 };

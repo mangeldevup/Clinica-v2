@@ -2,10 +2,10 @@
   <div class="container">
     <form enctype="multipart/form-data" method="post">
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-person-lines-fill"></i> Datos del Acompañante
+              <i class="fas fa-user-friends"></i> Datos del Acompañante
             </span>
             <span class="opciones-formulario"></span>
           </p>
@@ -21,7 +21,7 @@
                   v-model="sinAcompanante"
                 />
                 <label class="form-check-label" for="sinAcompanante">
-                  <strong>Asiste sin Acompañante</strong>
+                  Asiste sin Acompañante
                 </label>
               </div>
             </div>
@@ -30,9 +30,7 @@
           <div class="row">
             <div class="col-lg-6 col-md-12">
               <div class="mb-3">
-                <label for="nombres" class="form-label">
-                  <strong class="strong-form">Nombres</strong>
-                </label>
+                <label for="nombres" class="form-label"> Nombres </label>
                 <input
                   id="nombres"
                   class="form-control"
@@ -46,9 +44,7 @@
             </div>
             <div class="col-lg-6 col-md-12">
               <div class="mb-3">
-                <label for="apellidos" class="form-label">
-                  <strong class="strong-form">Apellidos</strong>
-                </label>
+                <label for="apellidos" class="form-label"> Apellidos </label>
                 <input
                   id="apellidos"
                   class="form-control"
@@ -62,9 +58,7 @@
             </div>
             <div class="col-lg-6 col-md-12">
               <div class="mb-3">
-                <label for="edad" class="form-label">
-                  <strong>Edad</strong>
-                </label>
+                <label for="edad" class="form-label"> Edad </label>
                 <input
                   id="edad"
                   class="form-control"
@@ -78,9 +72,7 @@
             </div>
             <div class="col-lg-6 col-md-12">
               <div class="mb-3">
-                <label for="celular" class="form-label">
-                  <strong>Celular</strong>
-                </label>
+                <label for="celular" class="form-label"> Celular </label>
                 <input
                   id="celular"
                   class="form-control"
@@ -94,9 +86,7 @@
             </div>
             <div class="col-lg-6 col-md-12">
               <div class="mb-3">
-                <label for="documento" class="form-label">
-                  <strong>Documento</strong>
-                </label>
+                <label for="documento" class="form-label"> Documento </label>
                 <input
                   id="documento"
                   class="form-control"
@@ -110,9 +100,7 @@
             </div>
             <div class="col-lg-6 col-md-12">
               <div class="mb-3">
-                <label for="parentesco" class="form-label">
-                  <strong>Parentesco</strong>
-                </label>
+                <label for="parentesco" class="form-label"> Parentesco </label>
                 <select
                   id="parentesco"
                   class="form-select"
@@ -138,7 +126,6 @@
               type="button"
               class="btn btn-custom btn-icon mb-2"
               @click="capturarDatos"
-              :disabled="sinAcompanante"
             >
               Guardar
             </button>
@@ -164,34 +151,100 @@ export default {
         celular: "",
         documento: "",
         parentesco: "",
+        acompanante: true,
       },
     };
   },
+  watch: {
+    sinAcompanante(newValue) {
+      this.formData.acompanante = !newValue;
+    },
+  },
   methods: {
     capturarDatos() {
-      // Verificamos si algún campo está vacío
-      if (
-        !this.formData.nombres ||
-        !this.formData.apellidos ||
-        !this.formData.edad ||
-        !this.formData.celular ||
-        !this.formData.documento ||
-        !this.formData.parentesco
-      ) {
-        Swal.fire("Por favor, complete todos los campos.");
-      } else {
-        // Capturamos los datos si están todos completos
-        const datosAcompanante = {
-          nombres: this.formData.nombres,
-          apellidos: this.formData.apellidos,
-          edad: this.formData.edad,
-          celular: this.formData.celular,
-          documento: this.formData.documento,
-          parentesco: this.formData.parentesco,
-        };
-
-        console.log("Datos del acompañante:", datosAcompanante);
+      if (!this.sinAcompanante) {
+        // Verificamos si algún campo está vacío
+        if (
+          !this.formData.nombres ||
+          !this.formData.apellidos ||
+          !this.formData.edad ||
+          !this.formData.celular ||
+          !this.formData.documento ||
+          !this.formData.parentesco
+        ) {
+          Swal.fire({
+            title: "¡Campos incompletos!",
+            text: "Por favor, complete todos los campos del formulario.",
+            icon: "warning",
+            iconColor: "#2a3f54",
+            confirmButtonText: "Entendido",
+            customClass: {
+              confirmButton: "btn btn-custom mb-2",
+            },
+            background: "#ededed",
+            backdrop: `
+              rgba(0, 0, 0, 0.5)
+            `,
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+          });
+          return;
+        }
       }
+
+      // Capturamos los datos
+      const datosAcompanante = {
+        nombres: this.formData.nombres,
+        apellidos: this.formData.apellidos,
+        edad: this.formData.edad,
+        celular: this.formData.celular,
+        documento: this.formData.documento,
+        parentesco: this.formData.parentesco,
+        acompanante: this.formData.acompanante,
+      };
+
+      console.log("Datos del acompañante:", datosAcompanante);
+
+      // Mostrar alerta de éxito
+      Swal.fire({
+        title: "¡Datos guardados!",
+        text: "Los datos del acompañante se han guardado correctamente.",
+        icon: "success",
+        iconColor: "#2a3f54",
+        confirmButtonText: "Entendido",
+        customClass: {
+          confirmButton: "btn btn-custom mb-2",
+        },
+        background: "#ededed",
+        backdrop: `
+          rgba(0, 0, 0, 0.5)
+        `,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
+
+      // Vaciar los campos del formulario
+      this.resetForm();
+    },
+    resetForm() {
+      this.formData = {
+        nombres: "",
+        apellidos: "",
+        edad: "",
+        celular: "",
+        documento: "",
+        parentesco: "",
+        acompanante: true,
+      };
+      this.sinAcompanante = false;
     },
   },
 };

@@ -52,7 +52,7 @@
               ></textarea>
             </div>
             <div class="modal-footer d-flex justify-content-between">
-              <button type="submit" class="btn btn-custom btn-icon mb-2">
+              <button type="submit" class="btn btn-custom btn-icon mb-5">
                 Agregar
               </button>
             </div>

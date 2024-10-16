@@ -2,6 +2,8 @@
   <div
     class="modal fade"
     id="imagenModal"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
     tabindex="-1"
     aria-labelledby="imagenModalLabel"
     aria-hidden="true"
@@ -9,7 +11,9 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div id="headerm-general" class="modal-header">
-          <h5 class="modal-title" id="imagenModalLabel">{{ titulo }}</h5>
+          <h1 class="modal-title fs-5 mt-2" id="imagenModalLabel">
+            {{ titulo }}
+          </h1>
           <button
             type="button"
             id="closem-general"

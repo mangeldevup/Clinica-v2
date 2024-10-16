@@ -8,13 +8,16 @@
   >
     <div class="row mt-3">
       <div class="col-md-3">
-        <!-- <button class="btn btn-custom btn-icon w-100" @click="adicionarNuevo">
-          <i class="bi bi-plus-lg"></i> Adicionar nuevo
-        </button> -->
         <div class="mt-3">
           <label for="cie10" class="form-label"
             >1. Seleccione antecente - CIE-10</label
           >
+          <button
+            class="btn btn-custom btn-icon mb-2 w-100"
+            @click="abrirModalCIE10"
+          >
+            <i class="fa-solid fa-magnifying-glass"></i> Buscar
+          </button>
           <input
             type="text"
             class="form-control"
@@ -22,12 +25,6 @@
             v-model="cie10"
             readonly
           />
-          <button
-            class="btn btn-custom btn-icon mt-2 w-100"
-            @click="abrirModalCIE10"
-          >
-            <i class="bi bi-search"></i> Buscar
-          </button>
         </div>
         <div class="mt-3">
           <label for="fecha" class="form-label">2. Fecha de antecedente</label>
@@ -49,7 +46,7 @@
           ></textarea>
         </div>
         <button class="btn btn-custom btn-icon mt-2 w-100" @click="agregar">
-          <i class="bi bi-floppy"></i> Agregar
+          <i class="fa-solid fa-plus"></i> Agregar
         </button>
       </div>
       <div class="col-md-9">
@@ -139,11 +136,84 @@ export default {
       }
 
       $(dataTable.value).DataTable(dataTableOptions);
+
+      $(dataTable.value).on("click", ".custom-delete-btn", function () {
+        const table = $(dataTable.value).DataTable();
+        const row = table.row($(this).parents("tr"));
+
+        Swal.fire({
+          title: "¿Está seguro?",
+          text: "¿Desea eliminar esta fila? Esta acción no se puede deshacer.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+          background: "#ededed",
+          backdrop: `rgba(0, 0, 0, 0.5)`,
+          customClass: {
+            confirmButton: "btn btn-custom mb-2 mr-2",
+            cancelButton: "btn btn-custom mb-2",
+          },
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            row.remove().draw();
+            table.rows().every(function (rowIdx) {
+              $(this.node())
+                .find("td:first-child")
+                .html(rowIdx + 1);
+            });
+            Swal.fire({
+              title: "¡Eliminado!",
+              text: "La fila ha sido eliminada.",
+              icon: "success",
+              iconColor: "#2a3f54",
+              confirmButtonText: "Entendido",
+              background: "#ededed",
+              backdrop: `rgba(0, 0, 0, 0.5)`,
+              customClass: {
+                confirmButton: "btn btn-custom mb-2",
+              },
+              showClass: {
+                popup: "animate__animated animate__fadeInDown",
+              },
+              hideClass: {
+                popup: "animate__animated animate__fadeOutUp",
+              },
+            });
+          }
+        });
+      });
     };
 
     const agregar = () => {
       if (!cie10.value || !props.fecha || !observaciones.value) {
-        alert("Por favor, complete todos los campos antes de agregar.");
+        Swal.fire({
+          title: "¡Campos incompletos!",
+          text: "Por favor, complete todos los campos del formulario.",
+          icon: "warning",
+          iconColor: "#2a3f54",
+          confirmButtonText: "Entendido",
+          customClass: {
+            confirmButton: "btn btn-custom mb-2",
+          },
+          background: "#ededed",
+          backdrop: `
+              rgba(0, 0, 0, 0.5)
+            `,
+          showClass: {
+            popup: "animate__animated animate__fadeInDown",
+          },
+          hideClass: {
+            popup: "animate__animated animate__fadeOutUp",
+          },
+        });
         return;
       }
 
@@ -156,7 +226,7 @@ export default {
           props.fecha,
           cie10.value,
           observaciones.value,
-          `<button class="custom-btn custom-delete-btn" onclick="removeRow(this)"><i class="fa-solid fa-trash-can"></i></button>`,
+          `<button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>`,
         ])
         .draw(false);
 

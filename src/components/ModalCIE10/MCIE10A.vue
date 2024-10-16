@@ -1,29 +1,28 @@
 <template>
   <div
     class="modal fade modal-small"
-    id="modalCIE10"
+    id="modalCIE10A"
     data-bs-backdrop="static"
     data-bs-keyboard="false"
     tabindex="-1"
-    :aria-labelledby="`${config.id}Label`"
-    aria-labelledby="modalCIE10Label"
+    aria-labelledby="modalCIE10Aabel"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div id="headerm-general" class="modal-header">
-          <h1 class="modal-title fs-5 mt-2" :id="`${config.id}Label`">
+        <div id="headerm-generalA" class="modal-header">
+          <h1 class="modal-title fs-5 mt-2" :id="`${config.id}modalCIE10ALabel`">
             {{ config.title }}
           </h1>
           <button
             type="button"
-            id="closem-general"
+            id="closem-generalA"
             class="close-modal bi bi-x ms-auto"
             data-bs-dismiss="modal"
             aria-label="Close"
           ></button>
         </div>
-        <div id="contenidom-general" class="modal-body">
+        <div id="contenidom-generalA" class="modal-body">
           <input
             type="text"
             class="form-control mt-2"
@@ -70,7 +69,7 @@ import { ref, onMounted } from "vue";
 import { Modal } from "bootstrap";
 
 export default {
-  name: "ModalCIE10",
+  name: "ModalCIE10A",
   emits: ["seleccionado"],
   setup(props, { emit }) {
     const busquedaLocal = ref("");
@@ -78,7 +77,7 @@ export default {
     const modalInstance = ref(null);
 
     onMounted(() => {
-      modalInstance.value = new Modal(document.getElementById("modalCIE10"));
+      modalInstance.value = new Modal(document.getElementById("modalCIE10A"));
     });
 
     const buscarCIE10 = () => {

@@ -2,10 +2,10 @@
   <div class="container">
     <form enctype="multipart/form-data" method="post">
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-activity"></i> Signos Vitales
+              <i class="fa-solid fa-stethoscope"></i> Signos Vitales
             </span>
             <span class="opciones-formulario"></span>
           </p>

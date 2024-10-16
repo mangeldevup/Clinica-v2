@@ -2,7 +2,7 @@
   <div :class="['offcanvas', { show: isMenuOpen }]" @click="closeMenu">
     <div class="offcanvas-content" @click.stop>
       <div class="logo-container">
-        <i class="bi bi-heart-pulse-fill icon"></i>
+        <i class="fa-solid fa-hospital-user icon"></i>
         <span class="logo-text">HISTORIA CLINICA</span>
       </div>
       <div class="menu-scroll-container">
@@ -21,7 +21,10 @@
               <button
                 @click="selectComponent(item.component, navigate, index)"
                 class="menu-item-btn"
-                :class="{ selected: isSelected(index) }"
+                :class="{
+                  selected: isSelected(index),
+                  'current-selected': isCurrentSelected(index),
+                }"
               >
                 <i :class="item.icon"></i>
                 <span class="full-text">{{ item.text }}</span>
@@ -32,7 +35,10 @@
               v-else
               @click="handleItemClick(item, index)"
               class="menu-item-btn"
-              :class="{ selected: isSelected(index) }"
+              :class="{
+                selected: isSelected(index),
+                'current-selected': isCurrentSelected(index),
+              }"
             >
               <i :class="item.icon"></i>
               <span class="full-text">{{ item.text }}</span>
@@ -79,6 +85,7 @@ export default {
     return {
       menuItems: menuItems,
       selectedItems: [],
+      currentSelectedIndex: null,
     };
   },
   mounted() {
@@ -96,6 +103,7 @@ export default {
       this.$emit("select-component", componentName);
       navigate();
       this.addSelectedItem(index);
+      this.currentSelectedIndex = index;
       if (window.innerWidth <= 5000) {
         this.closeMenu();
       }
@@ -108,6 +116,7 @@ export default {
         loginModal.show();
       }
       this.addSelectedItem(index);
+      this.currentSelectedIndex = index;
       this.closeMenu();
     },
     addSelectedItem(index) {
@@ -123,6 +132,9 @@ export default {
     isSelected(index) {
       return this.selectedItems.includes(index);
     },
+    isCurrentSelected(index) {
+      return this.currentSelectedIndex === index;
+    },
   },
 };
 </script>
@@ -131,5 +143,9 @@ export default {
 .menu-item-btn.selected {
   color: #1ab89d;
   font-weight: bold;
+}
+
+.menu-item-btn.current-selected {
+  color: #f0ad4e;
 }
 </style>

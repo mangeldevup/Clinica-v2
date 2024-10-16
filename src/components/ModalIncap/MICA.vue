@@ -1,19 +1,18 @@
 <template>
   <div
     class="modal fade modal-small"
-    id="modalCIE10"
+    id="modalMICA"
     data-bs-backdrop="static"
     data-bs-keyboard="false"
     tabindex="-1"
-    :aria-labelledby="`${config.id}Label`"
-    aria-labelledby="modalCIE10Label"
+    aria-labelledby="modalMICALabel"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div id="headerm-general" class="modal-header">
-          <h1 class="modal-title fs-5 mt-2" :id="`${config.id}Label`">
-            {{ config.title }}
+          <h1 class="modal-title fs-5 mt-2" id="modalMICALabel">
+            Buscar Motivo de Incapacidad
           </h1>
           <button
             type="button"
@@ -28,8 +27,8 @@
             type="text"
             class="form-control mt-2"
             v-model="busquedaLocal"
-            @input="buscarCIE10"
-            placeholder="Buscar CIE-10"
+            @input="buscarMotivos"
+            placeholder="Buscar Motivo de Incapacidad"
           />
           <br />
           <div v-if="busquedaLocal" class="table-responsive mb-3">
@@ -42,13 +41,13 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in resultadosCIE10" :key="item.codigo">
+                <tr v-for="item in resultadosMotivos" :key="item.codigo">
                   <td>{{ item.codigo }}</td>
                   <td>{{ item.descripcion }}</td>
                   <td>
                     <button
                       class="custom-btn custom-edit-btn"
-                      @click="seleccionarCIE10(item)"
+                      @click="seleccionarMotivo(item)"
                     >
                       <i class="fa-solid fa-plus"></i>
                     </button>
@@ -65,36 +64,44 @@
 </template>
 
 <script>
-import { modalCIE10 } from "../../bd/bd.js";
 import { ref, onMounted } from "vue";
 import { Modal } from "bootstrap";
 
 export default {
-  name: "ModalCIE10",
+  name: "MICA",
   emits: ["seleccionado"],
   setup(props, { emit }) {
     const busquedaLocal = ref("");
-    const resultadosCIE10 = ref([]);
+    const resultadosMotivos = ref([]);
     const modalInstance = ref(null);
 
     onMounted(() => {
-      modalInstance.value = new Modal(document.getElementById("modalCIE10"));
+      modalInstance.value = new Modal(document.getElementById("modalMICA"));
     });
 
-    const buscarCIE10 = () => {
+    const buscarMotivos = () => {
       if (busquedaLocal.value.trim() === "") {
-        resultadosCIE10.value = [];
+        resultadosMotivos.value = [];
         return;
       }
-      // Aquí implementarías la lógica real de búsqueda
-      resultadosCIE10.value = [
-        { codigo: "A00", descripcion: "Cólera" },
-        { codigo: "A01", descripcion: "Fiebres tifoidea y paratifoidea" },
-        // ... más resultados ...
-      ];
+      // Simulación de búsqueda con ejemplos de motivos de incapacidad
+      resultadosMotivos.value = [
+        { codigo: "M01", descripcion: "Incapacidad por enfermedad común" },
+        { codigo: "M02", descripcion: "Incapacidad por accidente laboral" },
+        {
+          codigo: "M03",
+          descripcion: "Incapacidad por enfermedad profesional",
+        },
+      ].filter(
+        (item) =>
+          item.codigo.includes(busquedaLocal.value) ||
+          item.descripcion
+            .toLowerCase()
+            .includes(busquedaLocal.value.toLowerCase())
+      );
     };
 
-    const seleccionarCIE10 = (item) => {
+    const seleccionarMotivo = (item) => {
       emit("seleccionado", item);
       modalInstance.value.hide();
     };
@@ -105,11 +112,10 @@ export default {
 
     return {
       busquedaLocal,
-      resultadosCIE10,
-      buscarCIE10,
-      seleccionarCIE10,
+      resultadosMotivos,
+      buscarMotivos,
+      seleccionarMotivo,
       abrirModal,
-      config: modalCIE10,
     };
   },
 };

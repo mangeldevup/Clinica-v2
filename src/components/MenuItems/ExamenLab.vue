@@ -2,10 +2,10 @@
   <div class="container">
     <form>
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-virus2"></i> Exámenes de Laboratorio
+              <i class="fas fa-flask"></i> Exámenes de Laboratorio
             </span>
             <span class="opciones-formulario"></span>
           </p>
@@ -59,7 +59,7 @@
                 </button>
               </div>
 
-              <h5 class="mt-4">Orden Medica</h5>
+              <h5 class="mt-4">Orden Médica</h5>
               <hr />
 
               <div class="table-responsive mt-3">
@@ -71,12 +71,12 @@
                       <th>Nombre</th>
                       <th>Requerimientos</th>
                       <th>Observaciones</th>
-                      <th>Opc</th>
+                      <th>Opciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(examen, index) in examenes" :key="index">
-                      <td>{{ examen.cups }}</td>
+                      <td>{{ examen.codigo }}</td>
                       <td>{{ examen.alias }}</td>
                       <td class="text-wrap">{{ examen.nombre }}</td>
                       <td class="text-wrap">{{ examen.requerimientos }}</td>
@@ -102,27 +102,29 @@
               tabindex="0"
             >
               <!-- DataTable -->
-              <div class="container my-4">
+              <div class="container">
                 <div class="row">
-                  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                  <div class="col-lg-12">
                     <div class="table-responsive">
-                      <!-- Agregar contenedor para el scroll -->
-                      <table ref="dataTable" class="table table-striped">
+                      <table
+                        ref="dataTable"
+                        class="table table-striped table-bordered"
+                        style="width: 100%"
+                      >
                         <thead>
                           <tr>
-                            <th class="centered">#</th>
-                            <th class="centered">Name</th>
-                            <th class="centered">Email</th>
-                            <th class="centered">City</th>
-                            <th class="centered">Company</th>
-                            <th class="centered">Status</th>
-                            <th class="centered">Options</th>
+                            <th>Fecha</th>
+                            <th>Tipo/Especificación</th>
+                            <th>CUPS</th>
+                            <th>Alias</th>
+                            <th>Nombre</th>
+                            <th>Observaciones</th>
+                            <th>Opciones</th>
                           </tr>
                         </thead>
                         <tbody></tbody>
                       </table>
                     </div>
-                    <!-- Cierre del contenedor -->
                   </div>
                 </div>
               </div>
@@ -133,10 +135,7 @@
       </div>
     </form>
   </div>
-  <ModalAgregarExamenLab
-    ref="modalAgregarExamenLab"
-    @examen-agregado="onExamenAgregado"
-  />
+  <MCUPSLab ref="modalAgregarExamenLab" @seleccionado="onExamenAgregado" />
 </template>
 
 <script>
@@ -145,46 +144,158 @@ import $ from "jquery";
 import "datatables.net";
 import "datatables.net-dt/css/dataTables.dataTables.css";
 
-import ModalAgregarExamenLab from "../ModalAgg/ModalAgregarExamenLab.vue";
+import MCUPSLab from "../ModalCUPS/MCUPSLab.vue";
 
 export default {
   components: {
-    ModalAgregarExamenLab,
+    MCUPSLab,
   },
   setup() {
     const examenes = ref([]);
     const modalAgregarExamenLab = ref(null);
+    const dataTable = ref(null);
 
     const abrirModalAgregarExamenLab = () => {
       modalAgregarExamenLab.value.abrirModal();
     };
 
     const onExamenAgregado = (nuevoExamen) => {
-      examenes.value.push(nuevoExamen);
+      examenes.value.push({
+        codigo: nuevoExamen.codigo,
+        alias: nuevoExamen.alias,
+        nombre: nuevoExamen.descripcion,
+        requerimientos: nuevoExamen.requerimientos,
+        observaciones: nuevoExamen.observaciones,
+      });
+      agregarExamenHistorial(nuevoExamen);
     };
 
     const eliminarExamen = (index) => {
-      examenes.value.splice(index, 1);
+      Swal.fire({
+        title: "¿Está seguro?",
+        text: "¿Desea eliminar esta fila? Esta acción no se puede deshacer.",
+        icon: "warning",
+        iconColor: "#2a3f54",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        customClass: {
+          confirmButton: "btn btn-custom mb-2 mr-2",
+          cancelButton: "btn btn-custom mb-2",
+        },
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          examenes.value.splice(index, 1);
+          Swal.fire({
+            title: "¡Eliminado!",
+            text: "La fila ha sido eliminada.",
+            icon: "success",
+            iconColor: "#2a3f54",
+            confirmButtonText: "Entendido",
+            background: "#ededed",
+            backdrop: `rgba(0, 0, 0, 0.5)`,
+            customClass: {
+              confirmButton: "btn btn-custom mb-2",
+            },
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+          });
+        }
+      });
     };
 
-    // Data Table ignorar por ahora
+    const agregarExamenHistorial = (examen) => {
+      const table = $(dataTable.value).DataTable();
+      const fechaActual = new Date().toLocaleDateString();
+      table.row
+        .add([
+          fechaActual,
+          "Tipo/Especificación",
+          examen.codigo,
+          examen.alias,
+          examen.descripcion,
+          examen.observaciones,
+          `<button class="custom-btn custom-delete-btn" onclick="eliminarExamenHistorial(this)">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>`,
+        ])
+        .draw(false);
+    };
 
-    const dataTable = ref(null);
+    window.eliminarExamenHistorial = (button) => {
+      const table = $(dataTable.value).DataTable();
+      const row = $(button).closest("tr");
+      Swal.fire({
+        title: "¿Está seguro?",
+        text: "¿Desea eliminar esta fila? Esta acción no se puede deshacer.",
+        icon: "warning",
+        iconColor: "#2a3f54",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+        background: "#ededed",
+        backdrop: `rgba(0, 0, 0, 0.5)`,
+        customClass: {
+          confirmButton: "btn btn-custom mb-2 mr-2",
+          cancelButton: "btn btn-custom mb-2",
+        },
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          table.row(row).remove().draw();
+          Swal.fire({
+            title: "¡Eliminado!",
+            text: "La fila ha sido eliminada.",
+            icon: "success",
+            iconColor: "#2a3f54",
+            confirmButtonText: "Entendido",
+            background: "#ededed",
+            backdrop: `rgba(0, 0, 0, 0.5)`,
+            customClass: {
+              confirmButton: "btn btn-custom mb-2",
+            },
+            showClass: {
+              popup: "animate__animated animate__fadeInDown",
+            },
+            hideClass: {
+              popup: "animate__animated animate__fadeOutUp",
+            },
+          });
+        }
+      });
+    };
 
     const dataTableOptions = {
       lengthMenu: [5, 10, 15, 20, 100, 200, 500],
       columnDefs: [
         { className: "centered", targets: [0, 1, 2, 3, 4, 5, 6] },
-        { orderable: false, targets: [5, 6] },
+        { orderable: false, targets: [6] },
         { searchable: false, targets: [1] },
       ],
       pageLength: 3,
       destroy: true,
       language: {
         lengthMenu: "Mostrar _MENU_ registros por página",
-        zeroRecords: "Ningún usuario encontrado",
+        zeroRecords: "Ningún examen encontrado",
         info: "Mostrando de _START_ a _END_ de un total de _TOTAL_ registros",
-        infoEmpty: "Ningún usuario encontrado",
+        infoEmpty: "Ningún examen encontrado",
         infoFiltered: "(filtrados desde _MAX_ registros totales)",
         search: "Buscar:",
         loadingRecords: "Cargando...",
@@ -202,38 +313,7 @@ export default {
         $(dataTable.value).DataTable().destroy();
       }
 
-      await listUsers();
-
       $(dataTable.value).DataTable(dataTableOptions);
-    };
-
-    const listUsers = async () => {
-      try {
-        const response = await fetch(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-        const users = await response.json();
-
-        let content = "";
-        users.forEach((user, index) => {
-          content += `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${user.name}</td>
-            <td>${user.email}</td>
-            <td>${user.address.city}</td>
-            <td>${user.company.name}</td>
-            <td><i class="fa-solid fa-check" style="color: green;"></i></td>
-            <td>
-              <button class="custom-btn custom-edit-btn"><i class="fa-solid fa-pencil"></i></button>
-              <button class="custom-btn custom-delete-btn"><i class="fa-solid fa-trash-can"></i></button>
-            </td>
-          </tr>`;
-        });
-        $(dataTable.value).find("tbody").html(content);
-      } catch (ex) {
-        alert(ex);
-      }
     };
 
     onMounted(async () => {

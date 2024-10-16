@@ -2,10 +2,10 @@
   <div class="container">
     <form>
       <div id="card-formulario" class="card mb-5">
-        <div id="card-header-formulario" class="card-header py-3">
+        <div id="card-header-formulario" class="card-header py-1">
           <p class="text-primary m-0 fw-bold d-flex justify-content-between">
             <span class="titulo-formulario">
-              <i class="bi bi-journal-medical"></i> Antecedentes</span
+              <i class="fas fa-book-medical"></i> Antecedentes</span
             >
             <span class="opciones-formulario"></span>
           </p>
@@ -24,7 +24,7 @@
                 aria-controls="personales"
                 aria-selected="true"
               >
-                <i class="bi bi-person"></i> Antecedentes Personales
+              <i class="fa-solid fa-person"></i> Antecedentes Personales
               </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -38,7 +38,7 @@
                 aria-controls="familiares"
                 aria-selected="false"
               >
-                <i class="bi bi-people"></i> Antecedentes Familiares
+              <i class="fa-solid fa-people-group"></i> Antecedentes Familiares
               </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -52,7 +52,7 @@
                 aria-controls="patologicos"
                 aria-selected="false"
               >
-                <i class="bi bi-activity"></i> Antecedentes Patológicos
+              <i class="fa-solid fa-heart-pulse"></i> Antecedentes Patológicos
               </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -66,7 +66,7 @@
                 aria-controls="no-patologicos"
                 aria-selected="false"
               >
-                <i class="bi bi-heart"></i> Antecedentes No Patológicos
+              <i class="fa-solid fa-heart"></i> Antecedentes No Patológicos
               </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -80,7 +80,7 @@
                 aria-controls="alergias"
                 aria-selected="false"
               >
-                <i class="bi bi-exclamation-triangle"></i> Alergias
+              <i class="fa-solid fa-hand-dots"></i> Alergias
               </button>
             </li>
           </ul>

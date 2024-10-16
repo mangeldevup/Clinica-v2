@@ -2,7 +2,6 @@
   <AppNavBar @toggle-menu="toggleMenu"></AppNavBar>
   <AppMenu :isMenuOpen="isMenuOpen" @close-menu="closeMenu"></AppMenu>
   <AppLogin />
-  <AppInfo />
   <router-view></router-view>
 </template>
 
@@ -10,14 +9,12 @@
 import AppNavBar from "./AppNavBar.vue";
 import AppMenu from "./AppMenu.vue";
 import AppLogin from "./Sections/AppLogin.vue";
-import AppInfo from "./AppInfo.vue";
 
 export default {
   components: {
     AppMenu,
     AppNavBar,
     AppLogin,
-    AppInfo,
   },
   data() {
     return {
